@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Visualization Assignment</title>
+    <!--
+      Document structure:
+      - Use semantic regions for main content and figures.
+      - Load ES modules (app logic lives in ./src/app.js).
+      - No inline styles; theming via CSS variables in style.css.
+    -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="site-header" role="banner">
+        <h1 class="site-header__title">Road Safety Enforcement — Interactive Visualisations</h1>
+        <p class="site-header__subtitle">Explore BITRE enforcement data with filters and animated, accessible charts.</p>
+    </header>
+
+    <main id="main" class="layout" role="main">
+        <!-- Controls region: states exposed via observables in app.js -->
+        <section class="controls" aria-label="Filters">
+            <label class="controls__label" for="control-year">Year</label>
+            <select id="control-year" class="controls__select" aria-controls="viz-overview viz-map" aria-label="Select year">
+                <!-- Options populated by app.js from data -->
+            </select>
+
+            <label class="controls__label" for="control-state">State</label>
+            <select id="control-state" class="controls__select" aria-controls="viz-overview viz-map" aria-label="Select state">
+                <!-- Options populated by app.js from data -->
+            </select>
+        </section>
+
+        <!-- Overview chart -->
+        <section id="viz-overview" class="chart-section" aria-labelledby="viz-overview-title">
+            <h2 id="viz-overview-title" class="chart-section__title">Overview</h2>
+            <figure class="chart-container" role="group" aria-labelledby="overview-figure-title" aria-describedby="overview-figure-desc">
+                <figcaption id="overview-figure-title" class="chart-container__caption">Enforcement Trends</figcaption>
+                <p id="overview-figure-desc" class="visually-hidden">Interactive chart showing trends over time by category. Use keyboard to navigate bars/lines.</p>
+                <div id="overview-root" class="chart-container__root" data-chart="overview"></div>
+            </figure>
+        </section>
+
+        <!-- Map visualisation -->
+        <section id="viz-map" class="chart-section" aria-labelledby="viz-map-title">
+            <h2 id="viz-map-title" class="chart-section__title">Geographic Distribution</h2>
+            <figure class="chart-container" role="group" aria-labelledby="map-figure-title" aria-describedby="map-figure-desc">
+                <figcaption id="map-figure-title" class="chart-container__caption">Map of Enforcement Metrics</figcaption>
+                <p id="map-figure-desc" class="visually-hidden">Choropleth map showing distribution by region with keyboard and hover tooltips.</p>
+                <div id="map-root" class="chart-container__root" data-chart="map"></div>
+            </figure>
+        </section>
+    </main>
+
+    <footer class="site-footer" role="contentinfo">
+        <p class="site-footer__text">Data sources: BITRE. Built with D3.js.</p>
+    </footer>
+
+    <!-- Load application entry point -->
+    <script type="module">
+        // Defer to ES module structure; script.js currently documents architecture.
+        // When src/app.js is implemented, replace this with: import './src/app.js';
+        import './script.js';
+    </script>
+</body>
+</html>
+
