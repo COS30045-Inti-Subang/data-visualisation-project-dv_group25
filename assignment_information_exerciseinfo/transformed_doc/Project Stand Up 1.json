@@ -1,0 +1,29 @@
+[
+  {
+    "sid": "/project-stand-up-1",
+    "title": "Project Stand Up 1",
+    "level": 1,
+    "children": [
+      {
+        "sid": "/project-scope",
+        "title": "Project Scope",
+        "level": 2,
+        "parent": "/project-stand-up-1",
+        "children": []
+      },
+      {
+        "sid": "/data-collection-summary",
+        "title": "Data Collection Summary",
+        "level": 2,
+        "parent": "/project-stand-up-1",
+        "children": []
+      }
+    ]
+  },
+  {
+    "sid": "/",
+    "title": "",
+    "level": 1,
+    "children": []
+  }
+]
