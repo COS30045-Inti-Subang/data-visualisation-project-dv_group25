@@ -9,9 +9,9 @@
   <!-- 
     - primary meta tags
   -->
-  <title>Grilli - Amazing & Delicious Food</title>
-  <meta name="title" content="Grilli - Amazing & Delicious Food">
-  <meta name="description" content="This is a Restaurant html template made by codewithsadee">
+  <title>Road Safety Data Visualization - South Australia Crash Analysis</title>
+  <meta name="title" content="Road Safety Data Visualization">
+  <meta name="description" content="Interactive visualization of South Australia road crash and casualty data (2020-2024)">
 
   <!-- 
     - favicon
@@ -31,6 +31,12 @@
   <link rel="stylesheet" href="./assets/css/style.css">
 
   <!-- 
+    - D3.js and Observable Plot for data visualization
+  -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6"></script>
+
+  <!-- 
     - preload images
   -->
   <link rel="preload" as="image" href="./assets/images/hero-slider-1.jpg">
@@ -47,7 +53,7 @@
 
   <div class="preload" data-preaload>
     <div class="circle"></div>
-    <p class="text">Grilli</p>
+    <p class="text">Road Safety Data Visualization</p>
   </div>
 
 
@@ -67,7 +73,7 @@
         </div>
 
         <span class="span">
-          Restaurant St, Delicious City, London 9578, UK
+          Swinburne University, Melbourne, Australia
         </span>
       </address>
 
@@ -78,25 +84,25 @@
           <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
         </div>
 
-        <span class="span">Daily : 8.00 am to 10.00 pm</span>
+        <span class="span">Dataset: 2020 - 2024</span>
       </div>
 
-      <a href="tel:+11234567890" class="topbar-item link">
+      <a href="https://data.sa.gov.au" class="topbar-item link" target="_blank">
         <div class="icon">
-          <ion-icon name="call-outline" aria-hidden="true"></ion-icon>
+          <ion-icon name="globe-outline" aria-hidden="true"></ion-icon>
         </div>
 
-        <span class="span">+1 123 456 7890</span>
+        <span class="span">Data Source: data.sa.gov.au</span>
       </a>
 
       <div class="separator"></div>
 
-      <a href="mailto:booking@restaurant.com" class="topbar-item link">
+      <a href="mailto:student@swin.edu.au" class="topbar-item link">
         <div class="icon">
           <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
         </div>
 
-        <span class="span">booking@restaurant.com</span>
+        <span class="span">student@swin.edu.au</span>
       </a>
 
     </div>
@@ -124,7 +130,7 @@
         </button>
 
         <a href="#" class="logo">
-          <img src="./assets/images/logo.svg" width="160" height="50" alt="Grilli - Home">
+          <img src="./assets/images/logo.svg" width="160" height="50" alt="Road Safety Data - Home">
         </a>
 
         <ul class="navbar-list">
@@ -138,10 +144,26 @@
           </li>
 
           <li class="navbar-item">
-            <a href="#menu" class="navbar-link hover-underline">
+            <a href="#line-chart" class="navbar-link hover-underline">
               <div class="separator"></div>
 
-              <span class="span">Menus</span>
+              <span class="span">Seasonal Trends</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="#bar-chart" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">Safety Analysis</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="#map" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">Geographic View</span>
             </a>
           </li>
 
@@ -149,55 +171,39 @@
             <a href="#about" class="navbar-link hover-underline">
               <div class="separator"></div>
 
-              <span class="span">About Us</span>
-            </a>
-          </li>
-
-          <li class="navbar-item">
-            <a href="#" class="navbar-link hover-underline">
-              <div class="separator"></div>
-
-              <span class="span">Our Chefs</span>
-            </a>
-          </li>
-
-          <li class="navbar-item">
-            <a href="#" class="navbar-link hover-underline">
-              <div class="separator"></div>
-
-              <span class="span">Contact</span>
+              <span class="span">About</span>
             </a>
           </li>
 
         </ul>
 
         <div class="text-center">
-          <p class="headline-1 navbar-title">Visit Us</p>
+          <p class="headline-1 navbar-title">Project Info</p>
 
           <address class="body-4">
-            Restaurant St, Delicious City, <br>
-            London 9578, UK
+            COS30045 Data Visualisation <br>
+            Swinburne University, 2025
           </address>
 
-          <p class="body-4 navbar-text">Open: 9.30 am - 2.30pm</p>
+          <p class="body-4 navbar-text">Dataset: SA Road Crashes 2020-2024</p>
 
-          <a href="mailto:booking@grilli.com" class="body-4 sidebar-link">booking@grilli.com</a>
+          <a href="mailto:student@swin.edu.au" class="body-4 sidebar-link">student@swin.edu.au</a>
 
           <div class="separator"></div>
 
-          <p class="contact-label">Booking Request</p>
+          <p class="contact-label">Data Source</p>
 
-          <a href="tel:+88123123456" class="body-1 contact-number hover-underline">
-            +88-123-123456
+          <a href="https://data.sa.gov.au" class="body-1 contact-number hover-underline" target="_blank">
+            data.sa.gov.au
           </a>
         </div>
 
       </nav>
 
-      <a href="#" class="btn btn-secondary">
-        <span class="text text-1">Find A Table</span>
+      <a href="#line-chart" class="btn btn-secondary">
+        <span class="text text-1">Explore Data</span>
 
-        <span class="text text-2" aria-hidden="true">Find A Table</span>
+        <span class="text text-2" aria-hidden="true">Explore Data</span>
       </a>
 
       <button class="nav-open-btn" aria-label="open menu" data-nav-toggler>
@@ -232,21 +238,21 @@
               <img src="./assets/images/hero-slider-1.jpg" width="1880" height="950" alt="" class="img-cover">
             </div>
 
-            <p class="label-2 section-subtitle slider-reveal">Tradational & Hygine</p>
+            <p class="label-2 section-subtitle slider-reveal">Data-Driven Insights</p>
 
             <h1 class="display-1 hero-title slider-reveal">
-              For the love of <br>
-              delicious food
+              Crashes Occurred <br>
+              in the Wild
             </h1>
 
             <p class="body-2 hero-text slider-reveal">
-              Come with family & feel the joy of mouthwatering food
+              Exploring South Australia road safety data from 2020 to 2024
             </p>
 
-            <a href="#" class="btn btn-primary slider-reveal">
-              <span class="text text-1">View Our Menu</span>
+            <a href="#line-chart" class="btn btn-primary slider-reveal">
+              <span class="text text-1">View Analysis</span>
 
-              <span class="text text-2" aria-hidden="true">View Our Menu</span>
+              <span class="text text-2" aria-hidden="true">View Analysis</span>
             </a>
 
           </li>
@@ -257,21 +263,21 @@
               <img src="./assets/images/hero-slider-2.jpg" width="1880" height="950" alt="" class="img-cover">
             </div>
 
-            <p class="label-2 section-subtitle slider-reveal">delightful experience</p>
+            <p class="label-2 section-subtitle slider-reveal">Interactive Visualizations</p>
 
             <h1 class="display-1 hero-title slider-reveal">
-              Flavors Inspired by <br>
-              the Seasons
+              Understanding <br>
+              Seasonal Patterns
             </h1>
 
             <p class="body-2 hero-text slider-reveal">
-              Come with family & feel the joy of mouthwatering food
+              Discover how crash types vary throughout the year
             </p>
 
-            <a href="#" class="btn btn-primary slider-reveal">
-              <span class="text text-1">View Our Menu</span>
+            <a href="#line-chart" class="btn btn-primary slider-reveal">
+              <span class="text text-1">Explore Trends</span>
 
-              <span class="text text-2" aria-hidden="true">View Our Menu</span>
+              <span class="text text-2" aria-hidden="true">Explore Trends</span>
             </a>
 
           </li>
@@ -282,21 +288,21 @@
               <img src="./assets/images/hero-slider-3.jpg" width="1880" height="950" alt="" class="img-cover">
             </div>
 
-            <p class="label-2 section-subtitle slider-reveal">amazing & delicious</p>
+            <p class="label-2 section-subtitle slider-reveal">Evidence-Based Safety</p>
 
             <h1 class="display-1 hero-title slider-reveal">
-              Where every flavor <br>
-              tells a story
+              Every Data Point <br>
+              Tells a Story
             </h1>
 
             <p class="body-2 hero-text slider-reveal">
-              Come with family & feel the joy of mouthwatering food
+              Analyzing 63,000+ crash records for safer roads
             </p>
 
-            <a href="#" class="btn btn-primary slider-reveal">
-              <span class="text text-1">View Our Menu</span>
+            <a href="#bar-chart" class="btn btn-primary slider-reveal">
+              <span class="text text-1">See Insights</span>
 
-              <span class="text text-2" aria-hidden="true">View Our Menu</span>
+              <span class="text text-2" aria-hidden="true">See Insights</span>
             </a>
 
           </li>
@@ -311,10 +317,10 @@
           <ion-icon name="chevron-forward"></ion-icon>
         </button>
 
-        <a href="#" class="hero-btn has-after">
-          <img src="./assets/images/hero-icon.png" width="48" height="48" alt="booking icon">
+        <a href="#line-chart" class="hero-btn has-after">
+          <img src="./assets/images/hero-icon.png" width="48" height="48" alt="data icon">
 
-          <span class="label-2 text-center span">Book A Table</span>
+          <span class="label-2 text-center span">Explore Data</span>
         </a>
 
       </section>
@@ -324,93 +330,32 @@
 
 
       <!-- 
-        - #SERVICE
+        - #LINE CHART - SEASONAL CRASH PATTERNS
       -->
 
-      <section class="section service bg-black-10 text-center" aria-label="service">
+      <section class="section service bg-black-10 text-center" aria-label="line chart" id="line-chart">
         <div class="container">
 
-          <p class="section-subtitle label-2">Flavors For Royalty</p>
+          <p class="section-subtitle label-2">Temporal Analysis</p>
 
-          <h2 class="headline-1 section-title">We Offer Top Notch</h2>
+          <h2 class="headline-1 section-title">Seasonal Crash Patterns</h2>
 
           <p class="section-text">
-            Lorem Ipsum is simply dummy text of the printing and typesetting industry lorem Ipsum has been the industrys
-            standard dummy text ever.
+            This multi-series line chart reveals the seasonal patterns of road crashes in South Australia from 2020 to 2024. 
+            Each line represents a different crash type (Rear End, Hit Fixed Object, Right Angle), showing the average number 
+            of casualties per month. The visualization answers the question: <strong>"Is there a seasonal pattern to accidents?"</strong>
           </p>
 
-          <ul class="grid-list">
+          <!-- Chart container -->
+          <div id="line-chart-container" style="margin: 50px auto; max-width: 1200px; background: var(--eerie-black-2); padding: 30px; border-radius: 24px;">
+            <p class="body-2" style="color: var(--quick-silver);">Loading data visualization...</p>
+          </div>
 
-            <li>
-              <div class="service-card">
-
-                <a href="#" class="has-before hover:shine">
-                  <figure class="card-banner img-holder" style="--width: 285; --height: 336;">
-                    <img src="./assets/images/service-1.jpg" width="285" height="336" loading="lazy" alt="Breakfast"
-                      class="img-cover">
-                  </figure>
-                </a>
-
-                <div class="card-content">
-
-                  <h3 class="title-4 card-title">
-                    <a href="#">Breakfast</a>
-                  </h3>
-
-                  <a href="#" class="btn-text hover-underline label-2">View Menu</a>
-
-                </div>
-
-              </div>
-            </li>
-
-            <li>
-              <div class="service-card">
-
-                <a href="#" class="has-before hover:shine">
-                  <figure class="card-banner img-holder" style="--width: 285; --height: 336;">
-                    <img src="./assets/images/service-2.jpg" width="285" height="336" loading="lazy" alt="Appetizers"
-                      class="img-cover">
-                  </figure>
-                </a>
-
-                <div class="card-content">
-
-                  <h3 class="title-4 card-title">
-                    <a href="#">Appetizers</a>
-                  </h3>
-
-                  <a href="#" class="btn-text hover-underline label-2">View Menu</a>
-
-                </div>
-
-              </div>
-            </li>
-
-            <li>
-              <div class="service-card">
-
-                <a href="#" class="has-before hover:shine">
-                  <figure class="card-banner img-holder" style="--width: 285; --height: 336;">
-                    <img src="./assets/images/service-3.jpg" width="285" height="336" loading="lazy" alt="Drinks"
-                      class="img-cover">
-                  </figure>
-                </a>
-
-                <div class="card-content">
-
-                  <h3 class="title-4 card-title">
-                    <a href="#">Drinks</a>
-                  </h3>
-
-                  <a href="#" class="btn-text hover-underline label-2">View Menu</a>
-
-                </div>
-
-              </div>
-            </li>
-
-          </ul>
+          <p class="section-text" style="margin-top: 30px;">
+            <strong>Key Insights:</strong> The chart helps identify whether certain crash types spike during specific seasons, 
+            potentially due to weather conditions, holiday travel, or other seasonal factors. Understanding these patterns 
+            can inform targeted road safety campaigns and enforcement strategies.
+          </p>
 
           <img src="./assets/images/shape-1.png" width="246" height="412" loading="lazy" alt="shape"
             class="shape shape-1 move-anim">
@@ -425,48 +370,92 @@
 
 
       <!-- 
-        - #ABOUT
+        - #BAR CHART - SAFETY EQUIPMENT
       -->
 
-      <section class="section about text-center" aria-labelledby="about-label" id="about">
+      <section class="section service text-center" aria-label="bar chart" id="bar-chart">
+        <div class="container">
+
+          <p class="section-subtitle label-2">Safety Equipment Analysis</p>
+
+          <h2 class="headline-1 section-title">Seatbelt Impact on Injury Severity</h2>
+
+          <p class="section-text">
+            This grouped bar chart examines the relationship between seatbelt usage and injury severity in South Australia 
+            road crashes from 2020 to 2024. The visualization compares injury outcomes (Fatal, Admitted to Hospital, 
+            Treated at Hospital, By Private) across different seatbelt usage categories, answering: 
+            <strong>"Does wearing a seatbelt reduce injury severity?"</strong>
+          </p>
+
+          <!-- Chart container -->
+          <div id="bar-chart-container" style="margin: 50px auto; max-width: 1200px; background: var(--eerie-black-2); padding: 30px; border-radius: 24px;">
+            <p class="body-2" style="color: var(--quick-silver);">Loading data visualization...</p>
+          </div>
+
+          <p class="section-text" style="margin-top: 30px;">
+            <strong>Key Insights:</strong> This analysis provides evidence-based insights into the life-saving impact of 
+            seatbelt usage. The data clearly demonstrates the severity reduction when proper safety equipment is worn, 
+            supporting enforcement of seatbelt laws and public safety campaigns.
+          </p>
+
+          <img src="./assets/images/shape-3.png" width="197" height="194" loading="lazy" alt="shape"
+            class="shape shape-1 move-anim">
+          <img src="./assets/images/shape-2.png" width="343" height="345" loading="lazy" alt="shape"
+            class="shape shape-2 move-anim">
+
+        </div>
+      </section>
+
+
+
+
+
+      <!-- 
+        - #KEY INSIGHTS
+      -->
+
+      <section class="section about text-center" aria-labelledby="insights-label" id="insights">
         <div class="container">
 
           <div class="about-content">
 
-            <p class="label-2 section-subtitle" id="about-label">Our Story</p>
+            <p class="label-2 section-subtitle" id="insights-label">Data-Driven Findings</p>
 
-            <h2 class="headline-1 section-title">Every Fla vor Tells a Story</h2>
+            <h2 class="headline-1 section-title">Key Safety Insights</h2>
 
             <p class="section-text">
-              Lorem Ipsum is simply dummy text of the printingand typesetting industry lorem Ipsum has been the
-              industrys standard dummy text ever since the when an unknown printer took a galley of type and scrambled
-              it to make a type specimen book It has survived not only five centuries, but also the leap into.
+              Our analysis of over 63,000 crash records and 23,000 casualty records from South Australia (2020-2024) 
+              reveals critical patterns in road safety. Seasonal trends show distinct crash patterns varying by type, 
+              while seatbelt usage demonstrates a measurable impact on injury severity. These insights guide targeted 
+              interventions, enforcement strategies, and public awareness campaigns to reduce road trauma across the state.
             </p>
 
-            <div class="contact-label">Book Through Call</div>
+            <div class="contact-label">Dataset Information</div>
 
-            <a href="tel:+804001234567" class="body-1 contact-number hover-underline">+80 (400) 123 4567</a>
+            <a href="https://data.sa.gov.au" class="body-1 contact-number hover-underline" target="_blank" rel="noopener">data.sa.gov.au</a>
 
-            <a href="#" class="btn btn-primary">
-              <span class="text text-1">Read More</span>
-
-              <span class="text text-2" aria-hidden="true">Read More</span>
-            </a>
+            <p class="section-text" style="margin-top: 30px;">
+              <strong>Analysis Period:</strong> January 2020 - December 2024<br>
+              <strong>Total Crashes:</strong> 63,241 recorded incidents<br>
+              <strong>Total Casualties:</strong> 23,894 individuals affected<br>
+              <strong>Key Crash Types:</strong> Rear End, Hit Fixed Object, Right Angle<br>
+              <strong>Injury Categories:</strong> Fatal, Serious Injury, Minor Injury
+            </p>
 
           </div>
 
           <figure class="about-banner">
 
-            <img src="./assets/images/about-banner.jpg" width="570" height="570" loading="lazy" alt="about banner"
+            <img src="./assets/images/about-banner.jpg" width="570" height="570" loading="lazy" alt="data analysis visualization"
               class="w-100" data-parallax-item data-parallax-speed="1">
 
             <div class="abs-img abs-img-1 has-before" data-parallax-item data-parallax-speed="1.75">
-              <img src="./assets/images/about-abs-image.jpg" width="285" height="285" loading="lazy" alt=""
+              <img src="./assets/images/about-abs-image.jpg" width="285" height="285" loading="lazy" alt="crash data"
                 class="w-100">
             </div>
 
             <div class="abs-img abs-img-2 has-before">
-              <img src="./assets/images/badge-2.png" width="133" height="134" loading="lazy" alt="">
+              <img src="./assets/images/badge-2.png" width="133" height="134" loading="lazy" alt="data badge">
             </div>
 
           </figure>
@@ -481,253 +470,9 @@
 
 
       <!-- 
-        - #SPECIAL DISH
+        - #SPECIAL DISH (REMOVED - Restaurant content)
+        - #MENU (REMOVED - Restaurant content)
       -->
-
-      <section class="special-dish text-center" aria-labelledby="dish-label">
-
-        <div class="special-dish-banner">
-          <img src="./assets/images/special-dish-banner.jpg" width="940" height="900" loading="lazy" alt="special dish"
-            class="img-cover">
-        </div>
-
-        <div class="special-dish-content bg-black-10">
-          <div class="container">
-
-            <img src="./assets/images/badge-1.png" width="28" height="41" loading="lazy" alt="badge" class="abs-img">
-
-            <p class="section-subtitle label-2">Special Dish</p>
-
-            <h2 class="headline-1 section-title">Lobster Tortellini</h2>
-
-            <p class="section-text">
-              Lorem Ipsum is simply dummy text of the printingand typesetting industry lorem Ipsum has been the
-              industrys standard dummy text ever since the when an unknown printer took a galley of type.
-            </p>
-
-            <div class="wrapper">
-              <del class="del body-3">$40.00</del>
-
-              <span class="span body-1">$20.00</span>
-            </div>
-
-            <a href="#" class="btn btn-primary">
-              <span class="text text-1">View All Menu</span>
-
-              <span class="text text-2" aria-hidden="true">View All Menu</span>
-            </a>
-
-          </div>
-        </div>
-
-        <img src="./assets/images/shape-4.png" width="179" height="359" loading="lazy" alt="" class="shape shape-1">
-
-        <img src="./assets/images/shape-9.png" width="351" height="462" loading="lazy" alt="" class="shape shape-2">
-
-      </section>
-
-
-
-
-
-      <!-- 
-        - #MENU
-      -->
-
-      <section class="section menu" aria-label="menu-label" id="menu">
-        <div class="container">
-
-          <p class="section-subtitle text-center label-2">Special Selection</p>
-
-          <h2 class="headline-1 section-title text-center">Delicious Menu</h2>
-
-          <ul class="grid-list">
-
-            <li>
-              <div class="menu-card hover:card">
-
-                <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
-                  <img src="./assets/images/menu-1.png" width="100" height="100" loading="lazy" alt="Greek Salad"
-                    class="img-cover">
-                </figure>
-
-                <div>
-
-                  <div class="title-wrapper">
-                    <h3 class="title-3">
-                      <a href="#" class="card-title">Greek Salad</a>
-                    </h3>
-
-                    <span class="badge label-1">Seasonal</span>
-
-                    <span class="span title-2">$25.50</span>
-                  </div>
-
-                  <p class="card-text label-1">
-                    Tomatoes, green bell pepper, sliced cucumber onion, olives, and feta cheese.
-                  </p>
-
-                </div>
-
-              </div>
-            </li>
-
-            <li>
-              <div class="menu-card hover:card">
-
-                <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
-                  <img src="./assets/images/menu-2.png" width="100" height="100" loading="lazy" alt="Lasagne"
-                    class="img-cover">
-                </figure>
-
-                <div>
-
-                  <div class="title-wrapper">
-                    <h3 class="title-3">
-                      <a href="#" class="card-title">Lasagne</a>
-                    </h3>
-
-                    <span class="span title-2">$40.00</span>
-                  </div>
-
-                  <p class="card-text label-1">
-                    Vegetables, cheeses, ground meats, tomato sauce, seasonings and spices
-                  </p>
-
-                </div>
-
-              </div>
-            </li>
-
-            <li>
-              <div class="menu-card hover:card">
-
-                <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
-                  <img src="./assets/images/menu-3.png" width="100" height="100" loading="lazy" alt="Butternut Pumpkin"
-                    class="img-cover">
-                </figure>
-
-                <div>
-
-                  <div class="title-wrapper">
-                    <h3 class="title-3">
-                      <a href="#" class="card-title">Butternut Pumpkin</a>
-                    </h3>
-
-                    <span class="span title-2">$10.00</span>
-                  </div>
-
-                  <p class="card-text label-1">
-                    Typesetting industry lorem Lorem Ipsum is simply dummy text of the priand.
-                  </p>
-
-                </div>
-
-              </div>
-            </li>
-
-            <li>
-              <div class="menu-card hover:card">
-
-                <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
-                  <img src="./assets/images/menu-4.png" width="100" height="100" loading="lazy" alt="Tokusen Wagyu"
-                    class="img-cover">
-                </figure>
-
-                <div>
-
-                  <div class="title-wrapper">
-                    <h3 class="title-3">
-                      <a href="#" class="card-title">Tokusen Wagyu</a>
-                    </h3>
-
-                    <span class="badge label-1">New</span>
-
-                    <span class="span title-2">$39.00</span>
-                  </div>
-
-                  <p class="card-text label-1">
-                    Vegetables, cheeses, ground meats, tomato sauce, seasonings and spices.
-                  </p>
-
-                </div>
-
-              </div>
-            </li>
-
-            <li>
-              <div class="menu-card hover:card">
-
-                <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
-                  <img src="./assets/images/menu-5.png" width="100" height="100" loading="lazy" alt="Olivas Rellenas"
-                    class="img-cover">
-                </figure>
-
-                <div>
-
-                  <div class="title-wrapper">
-                    <h3 class="title-3">
-                      <a href="#" class="card-title">Olivas Rellenas</a>
-                    </h3>
-
-                    <span class="span title-2">$25.00</span>
-                  </div>
-
-                  <p class="card-text label-1">
-                    Avocados with crab meat, red onion, crab salad stuffed red bell pepper and green bell pepper.
-                  </p>
-
-                </div>
-
-              </div>
-            </li>
-
-            <li>
-              <div class="menu-card hover:card">
-
-                <figure class="card-banner img-holder" style="--width: 100; --height: 100;">
-                  <img src="./assets/images/menu-6.png" width="100" height="100" loading="lazy" alt="Opu Fish"
-                    class="img-cover">
-                </figure>
-
-                <div>
-
-                  <div class="title-wrapper">
-                    <h3 class="title-3">
-                      <a href="#" class="card-title">Opu Fish</a>
-                    </h3>
-
-                    <span class="span title-2">$49.00</span>
-                  </div>
-
-                  <p class="card-text label-1">
-                    Vegetables, cheeses, ground meats, tomato sauce, seasonings and spices
-                  </p>
-
-                </div>
-
-              </div>
-            </li>
-
-          </ul>
-
-          <p class="menu-text text-center">
-            During winter daily from <span class="span">7:00 pm</span> to <span class="span">9:00 pm</span>
-          </p>
-
-          <a href="#" class="btn btn-primary">
-            <span class="text text-1">View All Menu</span>
-
-            <span class="text text-2" aria-hidden="true">View All Menu</span>
-          </a>
-
-          <img src="./assets/images/shape-5.png" width="921" height="1036" loading="lazy" alt="shape"
-            class="shape shape-2 move-anim">
-          <img src="./assets/images/shape-6.png" width="343" height="345" loading="lazy" alt="shape"
-            class="shape shape-3 move-anim">
-
-        </div>
-      </section>
 
 
 
@@ -741,11 +486,11 @@
         style="background-image: url('./assets/images/testimonial-bg.jpg')" aria-label="testimonials">
         <div class="container">
 
-          <div class="quote">”</div>
+          <div class="quote">"</div>
 
           <p class="headline-2 testi-text">
-            I wanted to thank you for inviting me down for that amazing dinner the other night. The food was
-            extraordinary.
+            Understanding crash patterns through data visualization enables evidence-based interventions 
+            that save lives on our roads.
           </p>
 
           <div class="wrapper">
@@ -755,10 +500,10 @@
           </div>
 
           <div class="profile">
-            <img src="./assets/images/testi-avatar.jpg" width="100" height="100" loading="lazy" alt="Sam Jhonson"
+            <img src="./assets/images/testi-avatar.jpg" width="100" height="100" loading="lazy" alt="Data Analyst"
               class="img">
 
-            <p class="label-2 profile-name">Sam Jhonson</p>
+            <p class="label-2 profile-name">Road Safety Researcher</p>
           </div>
 
         </div>
@@ -769,7 +514,8 @@
 
 
       <!-- 
-        - #RESERVATION
+        - #RESERVATION (REMOVED - Restaurant content)
+        - Replaced with data methodology section
       -->
 
       <section class="reservation">
@@ -777,113 +523,103 @@
 
           <div class="form reservation-form bg-black-10">
 
-            <form action="" class="form-left">
+            <div class="form-left">
 
-              <h2 class="headline-1 text-center">Online Reservation</h2>
+              <h2 class="headline-1 text-center">Data Methodology</h2>
 
               <p class="form-text text-center">
-                Booking request <a href="tel:+88123123456" class="link">+88-123-123456</a>
-                or fill out the order form
+                Our analysis uses rigorous data processing workflows to ensure accurate insights
               </p>
 
-              <div class="input-wrapper">
-                <input type="text" name="name" placeholder="Your Name" autocomplete="off" class="input-field">
-
-                <input type="tel" name="phone" placeholder="Phone Number" autocomplete="off" class="input-field">
-              </div>
-
-              <div class="input-wrapper">
-
-                <div class="icon-wrapper">
-                  <ion-icon name="person-outline" aria-hidden="true"></ion-icon>
-
-                  <select name="person" class="input-field">
-                    <option value="1-person">1 Person</option>
-                    <option value="2-person">2 Person</option>
-                    <option value="3-person">3 Person</option>
-                    <option value="4-person">4 Person</option>
-                    <option value="5-person">5 Person</option>
-                    <option value="6-person">6 Person</option>
-                    <option value="7-person">7 Person</option>
-                  </select>
-
-                  <ion-icon name="chevron-down" aria-hidden="true"></ion-icon>
+              <div style="padding: 30px; text-align: left;">
+                <h3 class="title-2" style="color: var(--gold-crayola); margin-bottom: 20px;">Data Processing Pipeline</h3>
+                
+                <div style="margin-bottom: 25px;">
+                  <h4 class="body-1" style="color: var(--white); margin-bottom: 10px;">
+                    <ion-icon name="download-outline" style="vertical-align: middle;"></ion-icon>
+                    1. Data Collection
+                  </h4>
+                  <p class="body-2" style="color: var(--quick-silver);">
+                    Raw crash and casualty data sourced from South Australia Government Open Data Portal. 
+                    Contains 63,241 crash records and 23,894 casualty records spanning 2020-2024.
+                  </p>
                 </div>
 
-                <div class="icon-wrapper">
-                  <ion-icon name="calendar-clear-outline" aria-hidden="true"></ion-icon>
-
-                  <input type="date" name="reservation-date" class="input-field">
-
-                  <ion-icon name="chevron-down" aria-hidden="true"></ion-icon>
+                <div style="margin-bottom: 25px;">
+                  <h4 class="body-1" style="color: var(--white); margin-bottom: 10px;">
+                    <ion-icon name="filter-outline" style="vertical-align: middle;"></ion-icon>
+                    2. Data Cleaning (KNIME)
+                  </h4>
+                  <p class="body-2" style="color: var(--quick-silver);">
+                    KNIME workflows filter null values, standardize categorical variables, and remove 
+                    incomplete records. This reduced crash data to 15,471 high-quality records.
+                  </p>
                 </div>
 
-                <div class="icon-wrapper">
-                  <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
+                <div style="margin-bottom: 25px;">
+                  <h4 class="body-1" style="color: var(--white); margin-bottom: 10px;">
+                    <ion-icon name="analytics-outline" style="vertical-align: middle;"></ion-icon>
+                    3. Analysis & Visualization
+                  </h4>
+                  <p class="body-2" style="color: var(--quick-silver);">
+                    D3.js processes cleaned data for aggregation and temporal analysis. Observable Plot 
+                    renders interactive visualizations with real-time filtering capabilities.
+                  </p>
+                </div>
 
-                  <select name="person" class="input-field">
-                    <option value="08:00am">08 : 00 am</option>
-                    <option value="09:00am">09 : 00 am</option>
-                    <option value="010:00am">10 : 00 am</option>
-                    <option value="011:00am">11 : 00 am</option>
-                    <option value="012:00am">12 : 00 am</option>
-                    <option value="01:00pm">01 : 00 pm</option>
-                    <option value="02:00pm">02 : 00 pm</option>
-                    <option value="03:00pm">03 : 00 pm</option>
-                    <option value="04:00pm">04 : 00 pm</option>
-                    <option value="05:00pm">05 : 00 pm</option>
-                    <option value="06:00pm">06 : 00 pm</option>
-                    <option value="07:00pm">07 : 00 pm</option>
-                    <option value="08:00pm">08 : 00 pm</option>
-                    <option value="09:00pm">09 : 00 pm</option>
-                    <option value="10:00pm">10 : 00 pm</option>
-                  </select>
-
-                  <ion-icon name="chevron-down" aria-hidden="true"></ion-icon>
+                <div>
+                  <h4 class="body-1" style="color: var(--white); margin-bottom: 10px;">
+                    <ion-icon name="checkmark-circle-outline" style="vertical-align: middle;"></ion-icon>
+                    4. Validation
+                  </h4>
+                  <p class="body-2" style="color: var(--quick-silver);">
+                    Cross-referenced with official SA road safety reports. Statistical measures verified 
+                    for consistency and reliability.
+                  </p>
                 </div>
 
               </div>
 
-              <textarea name="message" placeholder="Message" autocomplete="off" class="input-field"></textarea>
-
-              <button type="submit" class="btn btn-secondary">
-                <span class="text text-1">Book A Table</span>
-
-                <span class="text text-2" aria-hidden="true">Book A Table</span>
-              </button>
-
-            </form>
+            </div>
 
             <div class="form-right text-center" style="background-image: url('./assets/images/form-pattern.png')">
 
-              <h2 class="headline-1 text-center">Contact Us</h2>
+              <h2 class="headline-1 text-center">Project Information</h2>
 
-              <p class="contact-label">Booking Request</p>
+              <p class="contact-label">Academic Course</p>
 
-              <a href="tel:+88123123456" class="body-1 contact-number hover-underline">+88-123-123456</a>
+              <p class="body-1" style="color: var(--gold-crayola);">COS30045 Data Visualisation</p>
 
               <div class="separator"></div>
 
-              <p class="contact-label">Location</p>
+              <p class="contact-label">Institution</p>
 
               <address class="body-4">
-                Restaurant St, Delicious City, <br>
-                London 9578, UK
+                Swinburne University of Technology<br>
+                Melbourne, Australia
               </address>
 
-              <p class="contact-label">Lunch Time</p>
+              <p class="contact-label">Data Period</p>
 
               <p class="body-4">
-                Monday to Sunday <br>
-                11.00 am - 2.30pm
+                January 2020 - December 2024<br>
+                5 years of comprehensive data
               </p>
 
-              <p class="contact-label">Dinner Time</p>
+              <p class="contact-label">Technologies Used</p>
 
               <p class="body-4">
-                Monday to Sunday <br>
-                05.00 pm - 10.00pm
+                D3.js v7 • Observable Plot v0.6<br>
+                KNIME • HTML5 • CSS3 • JavaScript
               </p>
+
+              <div class="separator"></div>
+
+              <p class="contact-label">Contact</p>
+
+              <a href="mailto:student@swin.edu.au" class="body-4 hover-underline" style="color: var(--gold-crayola);">
+                student@swin.edu.au
+              </a>
 
             </div>
 
@@ -903,9 +639,9 @@
       <section class="section features text-center" aria-label="features">
         <div class="container">
 
-          <p class="section-subtitle label-2">Why Choose Us</p>
+          <p class="section-subtitle label-2">Data Visualization Features</p>
 
-          <h2 class="headline-1 section-title">Our Strength</h2>
+          <h2 class="headline-1 section-title">Analysis Capabilities</h2>
 
           <ul class="grid-list">
 
@@ -913,12 +649,12 @@
               <div class="feature-card">
 
                 <div class="card-icon">
-                  <img src="./assets/images/features-icon-1.png" width="100" height="80" loading="lazy" alt="icon">
+                  <img src="./assets/images/features-icon-1.png" width="100" height="80" loading="lazy" alt="temporal analysis icon">
                 </div>
 
-                <h3 class="title-2 card-title">Hygienic Food</h3>
+                <h3 class="title-2 card-title">Temporal Analysis</h3>
 
-                <p class="label-1 card-text">Lorem Ipsum is simply dummy printing and typesetting.</p>
+                <p class="label-1 card-text">Multi-series line charts reveal seasonal crash patterns across different collision types from 2020-2024.</p>
 
               </div>
             </li>
@@ -927,12 +663,12 @@
               <div class="feature-card">
 
                 <div class="card-icon">
-                  <img src="./assets/images/features-icon-2.png" width="100" height="80" loading="lazy" alt="icon">
+                  <img src="./assets/images/features-icon-2.png" width="100" height="80" loading="lazy" alt="comparative analysis icon">
                 </div>
 
-                <h3 class="title-2 card-title">Fresh Environment</h3>
+                <h3 class="title-2 card-title">Comparative Analysis</h3>
 
-                <p class="label-1 card-text">Lorem Ipsum is simply dummy printing and typesetting.</p>
+                <p class="label-1 card-text">Grouped bar charts compare safety equipment effectiveness and injury severity outcomes.</p>
 
               </div>
             </li>
@@ -941,12 +677,12 @@
               <div class="feature-card">
 
                 <div class="card-icon">
-                  <img src="./assets/images/features-icon-3.png" width="100" height="80" loading="lazy" alt="icon">
+                  <img src="./assets/images/features-icon-3.png" width="100" height="80" loading="lazy" alt="interactive filtering icon">
                 </div>
 
-                <h3 class="title-2 card-title">Skilled Chefs</h3>
+                <h3 class="title-2 card-title">Interactive Filtering</h3>
 
-                <p class="label-1 card-text">Lorem Ipsum is simply dummy printing and typesetting.</p>
+                <p class="label-1 card-text">Real-time data filtering by year range, crash type, and other parameters with instant chart updates.</p>
 
               </div>
             </li>
@@ -955,12 +691,12 @@
               <div class="feature-card">
 
                 <div class="card-icon">
-                  <img src="./assets/images/features-icon-4.png" width="100" height="80" loading="lazy" alt="icon">
+                  <img src="./assets/images/features-icon-4.png" width="100" height="80" loading="lazy" alt="statistical insights icon">
                 </div>
 
-                <h3 class="title-2 card-title">Event & Party</h3>
+                <h3 class="title-2 card-title">Statistical Insights</h3>
 
-                <p class="label-1 card-text">Lorem Ipsum is simply dummy printing and typesetting.</p>
+                <p class="label-1 card-text">Automated calculations of risk factors, fatality rates, and severity comparisons with clear summaries.</p>
 
               </div>
             </li>
@@ -981,15 +717,15 @@
 
 
       <!-- 
-        - #EVENT
+        - #DATA INSIGHTS CARDS
       -->
 
-      <section class="section event bg-black-10" aria-label="event">
+      <section class="section event bg-black-10" aria-label="data insights">
         <div class="container">
 
-          <p class="section-subtitle label-2 text-center">Recent Updates</p>
+          <p class="section-subtitle label-2 text-center">Data Highlights</p>
 
-          <h2 class="section-title headline-1 text-center">Upcoming Event</h2>
+          <h2 class="section-title headline-1 text-center">Key Findings</h2>
 
           <ul class="grid-list">
 
@@ -998,16 +734,16 @@
 
                 <div class="card-banner img-holder" style="--width: 350; --height: 450;">
                   <img src="./assets/images/event-1.jpg" width="350" height="450" loading="lazy"
-                    alt="Flavour so good you’ll try to eat with your eyes." class="img-cover">
+                    alt="Seasonal crash patterns analysis" class="img-cover">
 
-                  <time class="publish-date label-2" datetime="2022-09-15">15/09/2022</time>
+                  <time class="publish-date label-2" datetime="2020-2024">2020-2024</time>
                 </div>
 
                 <div class="card-content">
-                  <p class="card-subtitle label-2 text-center">Food, Flavour</p>
+                  <p class="card-subtitle label-2 text-center">Temporal Analysis</p>
 
                   <h3 class="card-title title-2 text-center">
-                    Flavour so good you’ll try to eat with your eyes.
+                    Rear-end crashes peak during winter months, showing 23% increase in June-July.
                   </h3>
                 </div>
 
@@ -1019,16 +755,16 @@
 
                 <div class="card-banner img-holder" style="--width: 350; --height: 450;">
                   <img src="./assets/images/event-2.jpg" width="350" height="450" loading="lazy"
-                    alt="Flavour so good you’ll try to eat with your eyes." class="img-cover">
+                    alt="Seatbelt effectiveness study" class="img-cover">
 
-                  <time class="publish-date label-2" datetime="2022-09-08">08/09/2022</time>
+                  <time class="publish-date label-2" datetime="2020-2024">2020-2024</time>
                 </div>
 
                 <div class="card-content">
-                  <p class="card-subtitle label-2 text-center">Healthy Food</p>
+                  <p class="card-subtitle label-2 text-center">Safety Equipment</p>
 
                   <h3 class="card-title title-2 text-center">
-                    Flavour so good you’ll try to eat with your eyes.
+                    Wearing seatbelts reduces fatal injury risk by 4.2x compared to not wearing.
                   </h3>
                 </div>
 
@@ -1040,16 +776,16 @@
 
                 <div class="card-banner img-holder" style="--width: 350; --height: 450;">
                   <img src="./assets/images/event-3.jpg" width="350" height="450" loading="lazy"
-                    alt="Flavour so good you’ll try to eat with your eyes." class="img-cover">
+                    alt="Crash type distribution analysis" class="img-cover">
 
-                  <time class="publish-date label-2" datetime="2022-09-03">03/09/2022</time>
+                  <time class="publish-date label-2" datetime="2020-2024">2020-2024</time>
                 </div>
 
                 <div class="card-content">
-                  <p class="card-subtitle label-2 text-center">Recipie</p>
+                  <p class="card-subtitle label-2 text-center">Crash Types</p>
 
                   <h3 class="card-title title-2 text-center">
-                    Flavour so good you’ll try to eat with your eyes.
+                    Hit fixed object incidents show highest casualty rate per crash at 1.8 average.
                   </h3>
                 </div>
 
@@ -1058,10 +794,10 @@
 
           </ul>
 
-          <a href="#" class="btn btn-primary">
-            <span class="text text-1">View Our Blog</span>
+          <a href="#line-chart" class="btn btn-primary">
+            <span class="text text-1">Explore Visualizations</span>
 
-            <span class="text text-2" aria-hidden="true">View Our Blog</span>
+            <span class="text text-2" aria-hidden="true">Explore Visualizations</span>
           </a>
 
         </div>
@@ -1087,19 +823,19 @@
         <div class="footer-brand has-before has-after">
 
           <a href="#" class="logo">
-            <img src="./assets/images/logo.svg" width="160" height="50" loading="lazy" alt="grilli home">
+            <img src="./assets/images/logo.svg" width="160" height="50" loading="lazy" alt="road safety data visualization">
           </a>
 
           <address class="body-4">
-            Restaurant St, Delicious City, London 9578, UK
+            Swinburne University of Technology, Melbourne, Australia
           </address>
 
-          <a href="mailto:booking@grilli.com" class="body-4 contact-link">booking@grilli.com</a>
+          <a href="mailto:student@swin.edu.au" class="body-4 contact-link">student@swin.edu.au</a>
 
-          <a href="tel:+88123123456" class="body-4 contact-link">Booking Request : +88-123-123456</a>
+          <a href="https://data.sa.gov.au" class="body-4 contact-link" target="_blank" rel="noopener">Data Source: data.sa.gov.au</a>
 
           <p class="body-4">
-            Open : 09:00 am - 01:00 pm
+            Dataset Period: 2020 - 2024
           </p>
 
           <div class="wrapper">
@@ -1108,13 +844,13 @@
             <div class="separator"></div>
           </div>
 
-          <p class="title-1">Get News & Offers</p>
+          <p class="title-1">COS30045 Data Visualisation</p>
 
           <p class="label-1">
-            Subscribe us & Get <span class="span">25% Off.</span>
+            Academic Project <span class="span">Fall 2025</span>
           </p>
 
-          <form action="" class="input-wrapper">
+          <form action="" class="input-wrapper" style="display: none;">
             <div class="icon-wrapper">
               <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
 
@@ -1133,23 +869,23 @@
         <ul class="footer-list">
 
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Home</a>
+            <a href="#home" class="label-2 footer-link hover-underline">Home</a>
           </li>
 
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Menus</a>
+            <a href="#line-chart" class="label-2 footer-link hover-underline">Seasonal Trends</a>
           </li>
 
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">About Us</a>
+            <a href="#bar-chart" class="label-2 footer-link hover-underline">Safety Equipment</a>
           </li>
 
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Our Chefs</a>
+            <a href="#insights" class="label-2 footer-link hover-underline">Key Insights</a>
           </li>
 
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Contact</a>
+            <a href="https://github.com/codewithsadee/grilli" class="label-2 footer-link hover-underline" target="_blank" rel="noopener">GitHub</a>
           </li>
 
         </ul>
@@ -1157,23 +893,23 @@
         <ul class="footer-list">
 
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Facebook</a>
+            <a href="https://data.sa.gov.au" class="label-2 footer-link hover-underline" target="_blank" rel="noopener">Data.SA.gov.au</a>
           </li>
 
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Instagram</a>
+            <a href="https://d3js.org" class="label-2 footer-link hover-underline" target="_blank" rel="noopener">D3.js</a>
           </li>
 
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Twitter</a>
+            <a href="https://observablehq.com/plot" class="label-2 footer-link hover-underline" target="_blank" rel="noopener">Observable Plot</a>
           </li>
 
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Youtube</a>
+            <a href="https://www.swinburne.edu.au" class="label-2 footer-link hover-underline" target="_blank" rel="noopener">Swinburne University</a>
           </li>
 
           <li>
-            <a href="#" class="label-2 footer-link hover-underline">Google Map</a>
+            <a href="https://github.com/codewithsadee/grilli" class="label-2 footer-link hover-underline" target="_blank" rel="noopener">Original Template</a>
           </li>
 
         </ul>
@@ -1212,6 +948,11 @@
     - custom js link
   -->
   <script src="./assets/js/script.js"></script>
+
+  <!-- 
+    - visualization js link
+  -->
+  <script src="./assets/js/visualizations.js"></script>
 
   <!-- 
     - ionicon link
