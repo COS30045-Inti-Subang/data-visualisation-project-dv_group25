@@ -387,20 +387,23 @@ async function createBarChart() {
 function renderBarChart(data) {
   const container = document.querySelector("#bar-chart-container");
   
-  // Injury color scale (severity-based)
-  const injuryColors = {
-    "Fatal": "hsl(0, 70%, 50%)",              // Red - most severe
-    "Admitted to Hospital": "hsl(30, 80%, 55%)", // Orange
-    "Treated at Hospital": "hsl(38, 61%, 73%)",  // Gold (theme color)
-    "By Private": "hsl(120, 40%, 50%)"        // Green - least severe
-  };
+  // Filter to only show "Worn" vs "Not Worn" for clearer comparison
+  const comparisonData = data.filter(d => 
+    d.seatbelt === "Worn" || d.seatbelt === "Not Worn"
+  );
   
-  // Create the grouped bar chart
+  // Rename for better labels
+  const formattedData = comparisonData.map(d => ({
+    ...d,
+    seatbeltStatus: d.seatbelt === "Worn" ? "Fitted & Worn" : "Not Fitted/Not Worn"
+  }));
+  
+  // Create the grouped bar chart (grouped by injury type)
   const plot = Plot.plot({
     width: 1100,
     height: 550,
     marginTop: 40,
-    marginRight: 40,
+    marginRight: 150,
     marginBottom: 80,
     marginLeft: 90,
     
@@ -411,9 +414,9 @@ function renderBarChart(data) {
     },
     
     x: {
-      label: "Seatbelt Usage →",
-      tickRotate: 0,
-      padding: 0.2
+      label: "Injury Severity →",
+      tickRotate: -15,
+      padding: 0.3
     },
     
     y: {
@@ -423,20 +426,20 @@ function renderBarChart(data) {
     
     color: {
       legend: true,
-      domain: ["Fatal", "Admitted to Hospital", "Treated at Hospital", "By Private"],
-      range: ["hsl(0, 70%, 50%)", "hsl(30, 80%, 55%)", "hsl(38, 61%, 73%)", "hsl(120, 40%, 50%)"],
-      label: "Injury Severity"
+      domain: ["Fitted & Worn", "Not Fitted/Not Worn"],
+      range: ["hsl(120, 50%, 50%)", "hsl(0, 70%, 55%)"], // Green vs Red
+      label: "Seatbelt Status"
     },
     
     marks: [
-      // Grouped bars
-      Plot.barY(data, {
-        x: "seatbelt",
+      // Grouped bars - now grouped by injury type with seatbelt status side-by-side
+      Plot.barY(formattedData, {
+        x: "injury",
         y: "count",
-        fill: "injury",
+        fill: "seatbeltStatus",
         channels: {
-          "Seatbelt": "seatbelt",
           "Injury Severity": "injury",
+          "Seatbelt Status": "seatbeltStatus",
           "Casualties": "count"
         },
         tip: {
@@ -445,8 +448,8 @@ function renderBarChart(data) {
           strokeWidth: 2,
           fontSize: "13px",
           format: {
-            "Seatbelt": true,
             "Injury Severity": true,
+            "Seatbelt Status": true,
             "Casualties": true,
             x: false,
             y: false
@@ -502,6 +505,298 @@ function renderBarChart(data) {
 }
 
 // ============================================
+// CHART 3: GEOGRAPHIC DISTRIBUTION (MAP)
+// ============================================
+
+async function createMap() {
+  try {
+    // Load the crash data
+    const data = await d3.csv("./data/2020-2024_DATA_SA_Crash(filtered).csv");
+    
+    console.log("Map data loaded:", data.length, "rows");
+    
+    // Filter for crashes with valid coordinates
+    const validData = data.filter(d => {
+      const x = parseFloat(d.ACCLOC_X);
+      const y = parseFloat(d.ACCLOC_Y);
+      return !isNaN(x) && !isNaN(y) && x !== 0 && y !== 0;
+    });
+    
+    console.log("Valid crash locations:", validData.length);
+    
+    // Limit to first 2000 crashes for performance
+    const mapData = validData.slice(0, 2000).map(d => ({
+      x: parseFloat(d.ACCLOC_X),
+      y: parseFloat(d.ACCLOC_Y),
+      casualties: parseInt(d["Total Cas"]) || 0,
+      fatalities: parseInt(d["Total Fats"]) || 0,
+      seriousInjuries: parseInt(d["Total SI"]) || 0,
+      minorInjuries: parseInt(d["Total MI"]) || 0,
+      crashType: d["Crash Type"],
+      suburb: d.Suburb || "Unknown",
+      date: `${d.Day}/${d.Month}/${d.Year}`,
+      time: d.Time || "Unknown",
+      speed: d["Area Speed"] || "Unknown",
+      weather: d["Weather Cond"] || "Unknown",
+      dui: d["DUI Involved"] || "No"
+    }));
+    
+    // Determine severity category
+    mapData.forEach(d => {
+      if (d.fatalities > 0) {
+        d.severity = "Fatal";
+        d.severityColor = "hsl(0, 70%, 50%)"; // Red
+      } else if (d.seriousInjuries > 0) {
+        d.severity = "Serious Injury";
+        d.severityColor = "hsl(30, 80%, 55%)"; // Orange
+      } else if (d.minorInjuries > 0) {
+        d.severity = "Minor Injury";
+        d.severityColor = "hsl(38, 61%, 73%)"; // Gold
+      } else {
+        d.severity = "Property Damage";
+        d.severityColor = "hsl(0, 0%, 65%)"; // Silver
+      }
+    });
+    
+    console.log("Map data processed:", mapData.length, "crashes");
+    
+    // Render the map
+    renderMap(mapData);
+    
+  } catch (error) {
+    console.error("Error creating map:", error);
+    const container = document.querySelector("#map-container");
+    container.innerHTML = `<p class="body-2" style="color: hsl(0, 70%, 60%);">Error loading map: ${error.message}</p>`;
+  }
+}
+
+function renderMap(data) {
+  const container = document.querySelector("#map-container");
+  
+  // Calculate bounds for South Australia
+  const xExtent = d3.extent(data, d => d.x);
+  const yExtent = d3.extent(data, d => d.y);
+  
+  console.log("X extent:", xExtent);
+  console.log("Y extent:", yExtent);
+  
+  // Get container dimensions - make map responsive
+  const containerWidth = container.offsetWidth || 1200;
+  const aspectRatio = 1.6; // Width/Height ratio for South Australia
+  const width = Math.min(containerWidth, 1200);
+  const height = width / aspectRatio;
+  const margin = { top: 40, right: 40, bottom: 40, left: 40 };
+  
+  // Add padding to bounds for better visualization
+  const xPadding = (xExtent[1] - xExtent[0]) * 0.05;
+  const yPadding = (yExtent[1] - yExtent[0]) * 0.05;
+  
+  // Create SVG with responsive viewBox
+  const svg = d3.create("svg")
+    .attr("width", "100%")
+    .attr("height", "100%")
+    .attr("viewBox", [0, 0, width, height])
+    .attr("preserveAspectRatio", "xMidYMid meet")
+    .style("background", "var(--eerie-black-1)")
+    .style("border-radius", "12px")
+    .style("max-height", "700px")
+    .style("display", "block")
+    .style("margin", "0 auto");
+  
+  // Create scales with padding
+  const xScale = d3.scaleLinear()
+    .domain([xExtent[0] - xPadding, xExtent[1] + xPadding])
+    .range([margin.left, width - margin.right]);
+  
+  const yScale = d3.scaleLinear()
+    .domain([yExtent[0] - yPadding, yExtent[1] + yPadding])
+    .range([height - margin.bottom, margin.top]);
+  
+  // Create radius scale for marker size
+  const radiusScale = d3.scaleSqrt()
+    .domain([0, d3.max(data, d => d.casualties)])
+    .range([3, 15]);
+  
+  // Create zoom behavior
+  const zoom = d3.zoom()
+    .scaleExtent([1, 10])
+    .on("zoom", zoomed);
+  
+  svg.call(zoom);
+  
+  // Add border frame
+  svg.append("rect")
+    .attr("x", margin.left)
+    .attr("y", margin.top)
+    .attr("width", width - margin.left - margin.right)
+    .attr("height", height - margin.top - margin.bottom)
+    .attr("fill", "none")
+    .attr("stroke", "var(--gold-crayola)")
+    .attr("stroke-width", 2)
+    .attr("opacity", 0.3);
+  
+  // Create main group for zoomable content
+  const g = svg.append("g");
+  
+  // Add background grid
+  const gridGroup = g.append("g")
+    .attr("class", "grid")
+    .attr("opacity", 0.08);
+  
+  // Vertical grid lines
+  gridGroup.selectAll(".grid-line-v")
+    .data(d3.range(xExtent[0], xExtent[1], (xExtent[1] - xExtent[0]) / 20))
+    .join("line")
+    .attr("class", "grid-line-v")
+    .attr("x1", d => xScale(d))
+    .attr("x2", d => xScale(d))
+    .attr("y1", margin.top)
+    .attr("y2", height - margin.bottom)
+    .attr("stroke", "var(--white)")
+    .attr("stroke-width", 0.5);
+  
+  // Horizontal grid lines
+  gridGroup.selectAll(".grid-line-h")
+    .data(d3.range(yExtent[0], yExtent[1], (yExtent[1] - yExtent[0]) / 20))
+    .join("line")
+    .attr("class", "grid-line-h")
+    .attr("x1", margin.left)
+    .attr("x2", width - margin.right)
+    .attr("y1", d => yScale(d))
+    .attr("y2", d => yScale(d))
+    .attr("stroke", "var(--white)")
+    .attr("stroke-width", 0.5);
+  
+  // Create markers group
+  const markersGroup = g.append("g")
+    .attr("class", "markers");
+  
+  // Add crash markers
+  const markers = markersGroup.selectAll("circle")
+    .data(data)
+    .join("circle")
+    .attr("cx", d => xScale(d.x))
+    .attr("cy", d => yScale(d.y))
+    .attr("r", d => radiusScale(d.casualties))
+    .attr("fill", d => d.severityColor)
+    .attr("opacity", 0.7)
+    .attr("stroke", "var(--eerie-black-1)")
+    .attr("stroke-width", 1)
+    .style("cursor", "pointer")
+    .on("mouseover", function() {
+      d3.select(this)
+        .attr("opacity", 1)
+        .attr("stroke", "var(--gold-crayola)")
+        .attr("stroke-width", 2);
+    })
+    .on("mouseout", function() {
+      d3.select(this)
+        .attr("opacity", 0.7)
+        .attr("stroke", "var(--eerie-black-1)")
+        .attr("stroke-width", 1);
+    })
+    .on("click", function(event, d) {
+      showTooltip(event, d);
+    });
+  
+  // Zoom function
+  function zoomed(event) {
+    g.attr("transform", event.transform);
+  }
+  
+  // Tooltip function
+  function showTooltip(event, d) {
+    // Remove existing tooltip
+    d3.selectAll(".crash-tooltip").remove();
+    
+    const tooltip = d3.select("body")
+      .append("div")
+      .attr("class", "crash-tooltip")
+      .style("position", "absolute")
+      .style("background", "var(--eerie-black-1)")
+      .style("color", "var(--white)")
+      .style("padding", "15px")
+      .style("border-radius", "8px")
+      .style("border", "2px solid var(--gold-crayola)")
+      .style("font-size", "13px")
+      .style("pointer-events", "none")
+      .style("z-index", "10000")
+      .style("max-width", "300px")
+      .style("left", (event.pageX + 15) + "px")
+      .style("top", (event.pageY + 15) + "px")
+      .html(`
+        <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--gold-crayola);">
+          <strong style="color: var(--gold-crayola); font-size: 14px;">${d.crashType}</strong>
+        </div>
+        <div style="line-height: 1.6;">
+          <strong>Location:</strong> ${d.suburb}<br>
+          <strong>Date/Time:</strong> ${d.date} at ${d.time}<br>
+          <strong>Severity:</strong> <span style="color: ${d.severityColor};">${d.severity}</span><br>
+          <strong>Casualties:</strong> ${d.casualties} (${d.fatalities} fatal, ${d.seriousInjuries} serious)<br>
+          <strong>Speed Limit:</strong> ${d.speed} km/h<br>
+          <strong>Weather:</strong> ${d.weather}<br>
+          <strong>DUI Involved:</strong> ${d.dui}
+        </div>
+        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--quick-silver); font-size: 11px; color: var(--quick-silver); text-align: center;">
+          Click anywhere to close
+        </div>
+      `);
+    
+    // Close tooltip on click anywhere
+    d3.select("body").on("click.tooltip", function() {
+      d3.selectAll(".crash-tooltip").remove();
+      d3.select("body").on("click.tooltip", null);
+    });
+  }
+  
+  // Clear container and add SVG
+  container.innerHTML = "";
+  container.appendChild(svg.node());
+  
+  // Add legend
+  const legend = document.createElement("div");
+  legend.style.cssText = "margin-top: 30px; padding: 20px; background: var(--eerie-black-1); border-radius: 12px; border: 1px solid var(--gold-crayola);";
+  legend.innerHTML = `
+    <div style="display: flex; flex-wrap: wrap; gap: 30px; align-items: center; justify-content: center;">
+      <div>
+        <p class="body-1" style="color: var(--gold-crayola); margin-bottom: 15px; font-weight: 700;">🗺️ Map Legend</p>
+        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 20px; height: 20px; background: hsl(0, 70%, 50%); border-radius: 50%;"></div>
+            <span class="body-2" style="color: var(--white);">Fatal</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 20px; height: 20px; background: hsl(30, 80%, 55%); border-radius: 50%;"></div>
+            <span class="body-2" style="color: var(--white);">Serious Injury</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 20px; height: 20px; background: hsl(38, 61%, 73%); border-radius: 50%;"></div>
+            <span class="body-2" style="color: var(--white);">Minor Injury</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 20px; height: 20px; background: hsl(0, 0%, 65%); border-radius: 50%;"></div>
+            <span class="body-2" style="color: var(--white);">Property Damage</span>
+          </div>
+        </div>
+      </div>
+      <div style="border-left: 1px solid var(--quick-silver); padding-left: 30px;">
+        <p class="body-2" style="color: var(--white); margin-bottom: 8px;"><strong>Total Crashes Shown:</strong> ${data.length.toLocaleString()}</p>
+        <p class="body-2" style="color: var(--white);"><strong>Geographic Coverage:</strong> South Australia</p>
+      </div>
+    </div>
+  `;
+  container.appendChild(legend);
+  
+  // Add usage instructions
+  const instructions = document.createElement("p");
+  instructions.style.cssText = "text-align: center; color: var(--quick-silver); font-size: 1.1rem; margin-top: 15px; font-style: italic;";
+  instructions.textContent = "💡 Tip: Scroll to zoom, click and drag to pan, click markers for crash details";
+  container.appendChild(instructions);
+  
+  console.log("Map rendered successfully!");
+}
+
+// ============================================
 // INITIALIZE VISUALIZATIONS ON PAGE LOAD
 // ============================================
 
@@ -514,6 +809,6 @@ window.addEventListener("load", function() {
   // Create bar chart
   createBarChart();
   
-  // Add more chart functions here as we build them
-  // createMap();
+  // Create map
+  createMap();
 });

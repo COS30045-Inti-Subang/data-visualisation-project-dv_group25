@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<!--HEAD-->
 
 <head>
   <meta charset="UTF-8">
@@ -39,9 +40,9 @@
   <!-- 
     - preload images
   -->
-  <link rel="preload" as="image" href="./assets/images/hero-slider-1.jpg">
-  <link rel="preload" as="image" href="./assets/images/hero-slider-2.jpg">
-  <link rel="preload" as="image" href="./assets/images/hero-slider-3.jpg">
+  <link rel="preload" as="image" href="./assets/images/mclaren_accident.jpg">
+  <link rel="preload" as="image" href="./assets/images/360_F_177702320_r7v3wfRlbJNL56JBZvB2UkKpGO55xO0f.jpg">
+  <link rel="preload" as="image" href="./assets/images/060625nstcrash01_1749175662.jpg">
 
 </head>
 
@@ -119,8 +120,8 @@
   <header class="header" data-header>
     <div class="container">
 
-      <a href="#" class="logo">
-        <img src="./assets/images/logo.svg" width="160" height="50" alt="Grilli - Home">
+      <a href="index.html" class="logo">
+        <img src="./assets/images/Gemini_Generated_Image_ozw7guozw7guozw7(nobackground).PNG" width="160" height="50" alt="Grilli - Home">
       </a>
 
       <nav class="navbar" data-navbar>
@@ -235,7 +236,7 @@
           <li class="slider-item active" data-hero-slider-item>
 
             <div class="slider-bg">
-              <img src="./assets/images/hero-slider-1.jpg" width="1880" height="950" alt="" class="img-cover">
+              <img src="./assets/images/mclaren_accident.jpg" width="1880" height="950" alt="" class="img-cover">
             </div>
 
             <p class="label-2 section-subtitle slider-reveal">Data-Driven Insights</p>
@@ -260,7 +261,7 @@
           <li class="slider-item" data-hero-slider-item>
 
             <div class="slider-bg">
-              <img src="./assets/images/hero-slider-2.jpg" width="1880" height="950" alt="" class="img-cover">
+              <img src="./assets/images/360_F_177702320_r7v3wfRlbJNL56JBZvB2UkKpGO55xO0f.jpg" width="1880" height="950" alt="" class="img-cover">
             </div>
 
             <p class="label-2 section-subtitle slider-reveal">Interactive Visualizations</p>
@@ -285,7 +286,7 @@
           <li class="slider-item" data-hero-slider-item>
 
             <div class="slider-bg">
-              <img src="./assets/images/hero-slider-3.jpg" width="1880" height="950" alt="" class="img-cover">
+              <img src="./assets/images/060625nstcrash01_1749175662.jpg" width="1880" height="950" alt="" class="img-cover">
             </div>
 
             <p class="label-2 section-subtitle slider-reveal">Evidence-Based Safety</p>
@@ -399,6 +400,46 @@
           </p>
 
           <img src="./assets/images/shape-3.png" width="197" height="194" loading="lazy" alt="shape"
+            class="shape shape-1 move-anim">
+          <img src="./assets/images/shape-2.png" width="343" height="345" loading="lazy" alt="shape"
+            class="shape shape-2 move-anim">
+
+        </div>
+      </section>
+
+
+
+
+
+      <!-- 
+        - #GEOGRAPHIC MAP
+      -->
+
+      <section class="section service bg-black-10 text-center" aria-label="geographic map" id="map">
+        <div class="container">
+
+          <p class="section-subtitle label-2">Geographic Analysis</p>
+
+          <h2 class="headline-1 section-title">Crash Distribution Across South Australia</h2>
+
+          <p class="section-text">
+            This interactive map visualizes the geographic distribution of road crashes across South Australia from 2020 to 2024. 
+            Each marker represents a crash location, color-coded by severity and sized by casualty count. The visualization answers: 
+            <strong>"Where do most crashes occur and what is their severity?"</strong>
+          </p>
+
+          <!-- Map container -->
+          <div id="map-container" style="margin: 50px auto; max-width: 1300px; background: var(--eerie-black-2); padding: 40px; border-radius: 24px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);">
+            <p class="body-2" style="color: var(--quick-silver); text-align: center;">Loading map visualization...</p>
+          </div>
+
+          <p class="section-text" style="margin-top: 30px;">
+            <strong>Geographic Insights:</strong> This spatial analysis reveals high-risk areas and crash hotspots across the state. 
+            Urban centers show higher crash frequency, while rural areas often exhibit higher severity rates. These patterns inform 
+            infrastructure improvements, speed limit adjustments, and targeted road safety interventions.
+          </p>
+
+          <img src="./assets/images/shape-1.png" width="246" height="412" loading="lazy" alt="shape"
             class="shape shape-1 move-anim">
           <img src="./assets/images/shape-2.png" width="343" height="345" loading="lazy" alt="shape"
             class="shape shape-2 move-anim">
@@ -823,7 +864,7 @@
         <div class="footer-brand has-before has-after">
 
           <a href="#" class="logo">
-            <img src="./assets/images/logo.svg" width="160" height="50" loading="lazy" alt="road safety data visualization">
+            <img src="./assets/images/Gemini_Generated_Image_ozw7guozw7guozw7(nobackground).PNG" width="160" height="50" loading="lazy" alt="road safety data visualization">
           </a>
 
           <address class="body-4">
@@ -919,7 +960,7 @@
       <div class="footer-bottom">
 
         <p class="copyright">
-          &copy; 2022 Grilli. All Rights Reserved | Crafted by <a href="https://github.com/codewithsadee"
+          &copy; 2025 Australia Road Safety Enforcement. All Rights Reserved | Crafted by <a href="https://github.com/codewithsadee"
             target="_blank" class="link">codewithsadee</a>
         </p>
 
