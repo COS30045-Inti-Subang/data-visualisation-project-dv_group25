@@ -36,7 +36,149 @@
   -->
   <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
   <script src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6"></script>
-
+  
+  <!-- 
+    - Leaflet.js for interactive geographic maps
+  -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+  
+  <!-- Proj4.js for coordinate projection conversion -->
+  <script src="https://cdn.jsdelivr.net/npm/proj4@2.9.0/dist/proj4.js"></script>
+  
+  <!-- Custom Leaflet styling -->
+  <style>
+    /* Custom popup styling */
+    .leaflet-popup-content-wrapper {
+      background: rgba(20, 20, 20, 0.95) !important;
+      color: #ffffff !important;
+      border-radius: 12px !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important;
+      border: 2px solid var(--gold-crayola) !important;
+      padding: 0 !important;
+    }
+    
+    .leaflet-popup-content {
+      margin: 16px !important;
+      font-size: 1rem !important;
+      line-height: 1.6 !important;
+    }
+    
+    .leaflet-popup-tip {
+      background: rgba(20, 20, 20, 0.95) !important;
+      border: 2px solid var(--gold-crayola) !important;
+    }
+    
+    /* Custom tooltip styling */
+    .leaflet-tooltip {
+      background: rgba(0, 0, 0, 0.9) !important;
+      color: #fbbf24 !important;
+      border: 2px solid #fbbf24 !important;
+      border-radius: 8px !important;
+      padding: 8px 12px !important;
+      font-size: 1rem !important;
+      font-weight: 600 !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+    }
+    
+    .leaflet-tooltip-top:before {
+      border-top-color: #fbbf24 !important;
+    }
+    
+    /* Legend styling */
+    .leaflet-legend {
+      pointer-events: auto !important;
+    }
+    
+    /* State label styling */
+    .state-label {
+      z-index: 1000 !important;
+    }
+    
+    /* Zoom control styling - keep mostly default */
+    .leaflet-control-zoom a {
+      background: white !important;
+      color: #333 !important;
+      border: 2px solid rgba(0,0,0,0.2) !important;
+    }
+    
+    .leaflet-control-zoom a:hover {
+      background: #f4f4f4 !important;
+    }
+    
+    /* Attribution styling */
+    .leaflet-control-attribution {
+      background: rgba(255, 255, 255, 0.8) !important;
+      font-size: 0.85rem !important;
+    }
+    
+    /* Layer control styling */
+    .leaflet-control-layers {
+      background: white !important;
+      border: 2px solid rgba(0,0,0,0.2) !important;
+      border-radius: 4px !important;
+    }
+    
+    .leaflet-control-zoom a:hover {
+      background: var(--gold-crayola) !important;
+      color: #000000 !important;
+    }
+    
+    /* Layer control styling */
+    .leaflet-control-layers {
+      background: rgba(20, 20, 20, 0.9) !important;
+      color: #ffffff !important;
+      border: 2px solid var(--gold-crayola) !important;
+      border-radius: 8px !important;
+    }
+    
+    .leaflet-control-layers-toggle {
+      background-image: none !important;
+      width: 36px !important;
+      height: 36px !important;
+    }
+    
+    .leaflet-control-layers-toggle:after {
+      content: '🗺️';
+      font-size: 1.5rem;
+      display: block;
+      text-align: center;
+      line-height: 36px;
+    }
+    
+    /* Ensure map container is properly sized and visible */
+    #map-container {
+      position: relative !important;
+      width: 100% !important;
+      height: 700px !important;
+      overflow: hidden !important;
+    }
+    
+    /* Ensure Leaflet container fills parent properly */
+    #map-container .leaflet-container {
+      width: 100% !important;
+      height: 100% !important;
+      background: #ffffff !important;
+      border-radius: 8px !important;
+    }
+    
+    /* CRITICAL: Ensure tiles are fully visible with no transparency */
+    .leaflet-tile-container img,
+    .leaflet-tile {
+      opacity: 1 !important;
+      filter: none !important;
+      -webkit-filter: none !important;
+    }
+    
+    /* Ensure map layers render properly */
+    .leaflet-map-pane,
+    .leaflet-tile-pane {
+      opacity: 1 !important;
+      filter: none !important;
+    }
+  </style>
+  
   <!-- 
     - preload images
   -->
@@ -131,7 +273,7 @@
         </button>
 
         <a href="#" class="logo">
-          <img src="./assets/images/logo.svg" width="160" height="50" alt="Road Safety Data - Home">
+          <img src="./assets/images/Gemini_Generated_Image_ozw7guozw7guozw7(nobackground).PNG" width="160" height="50" alt="Road Safety Data - Home">
         </a>
 
         <ul class="navbar-list">
@@ -429,8 +571,8 @@
           </p>
 
           <!-- Map container -->
-          <div id="map-container" style="margin: 50px auto; max-width: 1300px; background: var(--eerie-black-2); padding: 40px; border-radius: 24px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);">
-            <p class="body-2" style="color: var(--quick-silver); text-align: center;">Loading map visualization...</p>
+          <div id="map-container" style="margin: 50px auto; max-width: 1300px; height: 700px; background: #ffffff; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); border: 3px solid var(--gold-crayola);">
+            <!-- Leaflet map will be injected here -->
           </div>
 
           <p class="section-text" style="margin-top: 30px;">
@@ -993,6 +1135,7 @@
   <!-- 
     - visualization js link
   -->
+  <script src="./assets/js/leafletmap.js"></script>
   <script src="./assets/js/visualizations.js"></script>
 
   <!-- 

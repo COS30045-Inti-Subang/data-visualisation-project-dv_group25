@@ -36,7 +36,7 @@ An interactive data visualization website analyzing South Australia road crash a
 
 ## Project Overview## Project Overview
 
-![Desktop Demo](./assets/images/Gemini_Generated_Image_7y2ex97y2ex97y2e.png "Desktop Demo")![Desktop Demo](./assets/images/Gemini_Generated_Image_wnee0ywnee0ywnee.png "Desktop Demo") 
+![Desktop Demo](./assets/images/Gemini_Generated_Image_7y2ex97y2ex97y2e.png "Desktop Demo")![Desktop Demo](./assets/images/Gemini_Generated_Image_wnee0ywnee0ywnee.png "Desktop Demo")
 Gemini Created Images
 
 This project transformed the original Grilli restaurant template from codewithsadee into an interactive data visualization platform for analyzing road safety data from Australia. However, the project maintains the original dark and gold aesthetic while replacing all content with data-driven insights and interactive charts to visualize the data effectively and efficiently with tooltips, on-hover animations, easy-to-view layouts, and more. Other than that, this project transforms the original Grilli restaurant template into an interactive data visualization platform for analyzing road safety data from Australia. The project maintains the original dark and gold aesthetic while replacing all content with data-driven insights and interactive charts.
@@ -1002,3 +1002,12 @@ This project is licensed under the MIT License - see original template for detai
 >>>
 >>
 ```
+
+# Further Considerations
+
+
+Marker clustering performance - With 19,473 crash records, consider adding Leaflet.markercluster plugin (CDN: unpkg.com/leaflet.markercluster@1.5.3) to prevent rendering slowdown? Current code limits to 2,000 markers.
+
+Multiple basemap options - Should we add layer control with Street/Dark/Satellite tile options like the alcohol-drug-map.js reference implementation? Or keep single OpenStreetMap layer for simplicity?
+
+Filter controls - Add year range sliders, crash type checkboxes, or severity toggles to dynamically filter visible markers? Could reuse similar UI pattern from Chart 1's filter controls.

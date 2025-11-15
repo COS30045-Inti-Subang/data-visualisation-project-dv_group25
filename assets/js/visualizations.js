@@ -48,7 +48,7 @@ function createFilterControls() {
         
         <!-- Year Range Filter -->
         <div style="flex: 1; min-width: 200px;">
-          <label style="display: block; color: var(--gold-crayola); font-family: var(--fontFamily-forum); font-size: 1.4rem; margin-bottom: 10px;">
+          <label for="year-start" style="display: block; color: var(--gold-crayola); font-family: var(--fontFamily-forum); font-size: 1.4rem; margin-bottom: 10px;">
             Year Range
           </label>
           <div style="display: flex; gap: 10px; align-items: center;">
@@ -72,19 +72,19 @@ function createFilterControls() {
         
         <!-- Crash Type Toggles -->
         <div style="flex: 2; min-width: 300px;">
-          <label style="display: block; color: var(--gold-crayola); font-family: var(--fontFamily-forum); font-size: 1.4rem; margin-bottom: 10px;">
+          <div style="display: block; color: var(--gold-crayola); font-family: var(--fontFamily-forum); font-size: 1.4rem; margin-bottom: 10px;">
             Crash Types
-          </label>
+          </div>
           <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--white); font-size: 1.2rem;">
+            <label for="toggle-rear-end" style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--white); font-size: 1.2rem;">
               <input type="checkbox" id="toggle-rear-end" checked style="width: 18px; height: 18px; accent-color: hsl(38, 61%, 73%);">
               <span style="color: hsl(38, 61%, 73%);">● Rear End</span>
             </label>
-            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--white); font-size: 1.2rem;">
+            <label for="toggle-hit-object" style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--white); font-size: 1.2rem;">
               <input type="checkbox" id="toggle-hit-object" checked style="width: 18px; height: 18px; accent-color: hsl(0, 0%, 65%);">
               <span style="color: hsl(0, 0%, 65%);">● Hit Fixed Object</span>
             </label>
-            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--white); font-size: 1.2rem;">
+            <label for="toggle-right-angle" style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--white); font-size: 1.2rem;">
               <input type="checkbox" id="toggle-right-angle" checked style="width: 18px; height: 18px; accent-color: hsl(30, 61%, 60%);">
               <span style="color: hsl(30, 61%, 60%);">● Right Angle</span>
             </label>
@@ -797,6 +797,348 @@ function renderMap(data) {
 }
 
 // ============================================
+// GEOGRAPHIC MAP WITH LEAFLET.JS (PROPER IMPLEMENTATION)
+// ============================================
+
+async function createGeographicMap() {
+  try {
+    console.log("Creating geographic map with GeoJSON...");
+    
+    // Check if proj4 library is loaded
+    if (typeof proj4 === 'undefined') {
+      console.error("Proj4js library not loaded. Falling back to coordinate map...");
+      createMap();
+      return;
+    }
+    
+    // Define coordinate system projections
+    // MGA Zone 54 (GDA94) - used in crash data
+    proj4.defs("EPSG:28354", "+proj=utm +zone=54 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
+    
+    // Load GeoJSON boundary and crash data in parallel
+    const [geoData, crashData] = await Promise.all([
+      d3.json("./data/south-australia.geojson"),
+      d3.csv("./data/2020-2024_DATA_SA_Crash(filtered).csv")
+    ]);
+    
+    console.log("GeoJSON loaded:", geoData);
+    console.log("Crash data loaded:", crashData.length, "rows");
+    
+    // Filter and convert crash coordinates
+    const validCrashes = crashData
+      .filter(d => {
+        const x = parseFloat(d.ACCLOC_X);
+        const y = parseFloat(d.ACCLOC_Y);
+        return !isNaN(x) && !isNaN(y) && x !== 0 && y !== 0;
+      })
+      .slice(0, 2000) // Limit to 2000 for performance
+      .map(d => {
+        const mgaX = parseFloat(d.ACCLOC_X);
+        const mgaY = parseFloat(d.ACCLOC_Y);
+        
+        // Convert MGA Zone 54 to WGS84 (lat/long)
+        let longitude, latitude;
+        try {
+          [longitude, latitude] = proj4("EPSG:28354", "EPSG:4326", [mgaX, mgaY]);
+        } catch (error) {
+          console.warn("Coordinate conversion failed for:", mgaX, mgaY);
+          return null;
+        }
+        
+        return {
+          longitude,
+          latitude,
+          casualties: parseInt(d["Total Cas"]) || 0,
+          fatalities: parseInt(d["Total Fats"]) || 0,
+          seriousInjuries: parseInt(d["Total SI"]) || 0,
+          minorInjuries: parseInt(d["Total MI"]) || 0,
+          crashType: d["Crash Type"],
+          suburb: d.Suburb || "Unknown",
+          date: `${d.Day}/${d.Month}/${d.Year}`,
+          time: d.Time || "Unknown",
+          weather: d["Weather Cond"] || "Unknown",
+          dui: d["DUI Involved"] || "No",
+          severity: "",
+          severityColor: ""
+        };
+      })
+      .filter(d => d !== null);
+    
+    // Categorize by severity
+    validCrashes.forEach(d => {
+      if (d.fatalities > 0) {
+        d.severity = "Fatal";
+        d.severityColor = "hsl(0, 70%, 50%)";
+      } else if (d.seriousInjuries > 0) {
+        d.severity = "Serious Injury";
+        d.severityColor = "hsl(30, 80%, 55%)";
+      } else if (d.minorInjuries > 0) {
+        d.severity = "Minor Injury";
+        d.severityColor = "hsl(38, 61%, 73%)";
+      } else {
+        d.severity = "Property Damage";
+        d.severityColor = "hsl(0, 0%, 65%)";
+      }
+    });
+    
+    console.log("Converted crashes:", validCrashes.length);
+    
+    // Debug: Check sample coordinates
+    if (validCrashes.length > 0) {
+      console.log("Sample crash coordinates:", {
+        first: validCrashes[0],
+        middle: validCrashes[Math.floor(validCrashes.length / 2)],
+        last: validCrashes[validCrashes.length - 1]
+      });
+    }
+    
+    // Render the geographic map
+    renderGeographicMap(geoData, validCrashes);
+    
+  } catch (error) {
+    console.error("Error creating geographic map:", error);
+    console.log("Falling back to coordinate map...");
+    // Fallback to original coordinate map
+    createMap();
+  }
+}
+
+function renderGeographicMap(geoData, crashData) {
+  const container = document.querySelector("#map-container");
+  
+  // Get container dimensions
+  const containerWidth = container.offsetWidth || 1200;
+  const width = Math.min(containerWidth, 1200);
+  const height = width / 1.6;
+  const margin = { top: 40, right: 40, bottom: 40, left: 40 };
+  
+  // Create SVG
+  const svg = d3.create("svg")
+    .attr("width", "100%")
+    .attr("height", "100%")
+    .attr("viewBox", [0, 0, width, height])
+    .attr("preserveAspectRatio", "xMidYMid meet")
+    .style("background", "var(--smoky-black-1)")
+    .style("border-radius", "12px")
+    .style("max-height", "700px")
+    .style("display", "block")
+    .style("margin", "0 auto");
+  
+  // Create projection (Mercator centered on South Australia)
+  // Use fitExtent instead of fitSize to ensure proper padding
+  const projection = d3.geoMercator()
+    .fitExtent(
+      [[margin.left, margin.top], [width - margin.right, height - margin.bottom]], 
+      geoData
+    );
+  
+  console.log("Projection center:", projection.center());
+  console.log("Projection scale:", projection.scale());
+  console.log("Projection translate:", projection.translate());
+  
+  // Create path generator
+  const path = d3.geoPath().projection(projection);
+  
+  // Create main group for zoomable content
+  const g = svg.append("g");
+  
+  // Draw South Australia boundary with visible styling
+  g.append("path")
+    .datum(geoData)
+    .attr("d", path)
+    .attr("fill", "rgba(40, 40, 40, 0.8)")  // Dark gray, visible
+    .attr("stroke", "var(--gold-crayola)")
+    .attr("stroke-width", 3)
+    .attr("opacity", 1);
+  
+  // Add reference cities
+  const majorCities = [
+    { name: "Adelaide", lat: -34.9285, lon: 138.6007 },
+    { name: "Mount Gambier", lat: -37.8288, lon: 140.7831 },
+    { name: "Port Augusta", lat: -32.4927, lon: 137.7656 },
+    { name: "Whyalla", lat: -33.0333, lon: 137.5667 },
+    { name: "Murray Bridge", lat: -35.1194, lon: 139.2744 }
+  ];
+  
+  const citiesGroup = g.append("g").attr("class", "cities");
+  
+  majorCities.forEach(city => {
+    const [x, y] = projection([city.lon, city.lat]);
+    
+    if (x && y) {
+      const cityGroup = citiesGroup.append("g")
+        .attr("transform", `translate(${x},${y})`);
+      
+      // City marker
+      cityGroup.append("circle")
+        .attr("r", 4)
+        .attr("fill", "var(--gold-crayola)")
+        .attr("stroke", "var(--white)")
+        .attr("stroke-width", 2);
+      
+      // City label
+      cityGroup.append("text")
+        .attr("dy", -10)
+        .attr("text-anchor", "middle")
+        .attr("fill", "var(--white)")
+        .attr("font-size", "11px")
+        .attr("font-weight", "600")
+        .text(city.name);
+    }
+  });
+  
+  // Create radius scale for marker size
+  const radiusScale = d3.scaleSqrt()
+    .domain([0, d3.max(crashData, d => d.casualties)])
+    .range([3, 12]);
+  
+  // Create markers group
+  const markersGroup = g.append("g").attr("class", "crash-markers");
+  
+  // Plot crash markers
+  const markers = markersGroup.selectAll("circle")
+    .data(crashData)
+    .join("circle")
+    .attr("cx", d => {
+      const projected = projection([d.longitude, d.latitude]);
+      return projected ? projected[0] : null;
+    })
+    .attr("cy", d => {
+      const projected = projection([d.longitude, d.latitude]);
+      return projected ? projected[1] : null;
+    })
+    .attr("r", d => radiusScale(d.casualties))
+    .attr("fill", d => d.severityColor)
+    .attr("opacity", 0.8)
+    .attr("stroke", "rgba(255, 255, 255, 0.3)")
+    .attr("stroke-width", 1)
+    .style("cursor", "pointer");
+  
+  
+  // Add event handlers to markers
+  markers
+    .on("mouseover", function() {
+      d3.select(this)
+        .attr("opacity", 1)
+        .attr("stroke", "var(--gold-crayola)")
+        .attr("stroke-width", 2);
+    })
+    .on("mouseout", function() {
+      d3.select(this)
+        .attr("opacity", 0.8)
+        .attr("stroke", "rgba(255, 255, 255, 0.3)")
+        .attr("stroke-width", 1);
+    })
+    .on("click", function(event, d) {
+      showGeographicTooltip(event, d);
+    });
+  
+  // Debug: Check how many markers were actually rendered
+  console.log("Total markers rendered:", markers.size());
+  console.log("Sample marker positions:", {
+    first: crashData[0] ? {
+      coords: [crashData[0].longitude, crashData[0].latitude],
+      projected: projection([crashData[0].longitude, crashData[0].latitude])
+    } : null
+  });
+  
+  // Zoom behavior
+  const zoom = d3.zoom()
+    .scaleExtent([1, 15])
+    .on("zoom", (event) => {
+      g.attr("transform", event.transform);
+    });
+  
+  svg.call(zoom);
+  
+  // Tooltip function
+  function showGeographicTooltip(event, d) {
+    d3.selectAll(".crash-tooltip").remove();
+    
+    const tooltip = d3.select("body")
+      .append("div")
+      .attr("class", "crash-tooltip")
+      .style("position", "absolute")
+      .style("background", "var(--eerie-black-1)")
+      .style("color", "var(--white)")
+      .style("padding", "15px")
+      .style("border-radius", "8px")
+      .style("border", "2px solid var(--gold-crayola)")
+      .style("font-size", "13px")
+      .style("pointer-events", "none")
+      .style("z-index", "10000")
+      .style("max-width", "300px")
+      .style("left", (event.pageX + 15) + "px")
+      .style("top", (event.pageY + 15) + "px")
+      .html(`
+        <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--gold-crayola);">
+          <strong style="color: var(--gold-crayola); font-size: 14px;">${d.crashType}</strong>
+        </div>
+        <div style="line-height: 1.6;">
+          <p><strong>Location:</strong> ${d.suburb}</p>
+          <p><strong>Date:</strong> ${d.date} at ${d.time}</p>
+          <p><strong>Severity:</strong> <span style="color: ${d.severityColor};">${d.severity}</span></p>
+          <p><strong>Casualties:</strong> ${d.casualties} (${d.fatalities} fatal, ${d.seriousInjuries} serious)</p>
+          <p><strong>Weather:</strong> ${d.weather}</p>
+          <p><strong>DUI Involved:</strong> ${d.dui}</p>
+        </div>
+      `);
+    
+    d3.select("body").on("click.tooltip", function() {
+      d3.selectAll(".crash-tooltip").remove();
+      d3.select("body").on("click.tooltip", null);
+    });
+  }
+  
+  // Clear container and add SVG
+  container.innerHTML = "";
+  container.appendChild(svg.node());
+  
+  // Add legend
+  const legend = document.createElement("div");
+  legend.style.cssText = "margin-top: 30px; padding: 20px; background: var(--eerie-black-1); border-radius: 12px; border: 1px solid var(--gold-crayola);";
+  legend.innerHTML = `
+    <div style="display: flex; flex-wrap: wrap; gap: 30px; align-items: center; justify-content: center;">
+      <div>
+        <p class="body-1" style="color: var(--gold-crayola); margin-bottom: 15px; font-weight: 700;">Map Legend</p>
+        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 20px; height: 20px; background: hsl(0, 70%, 50%); border-radius: 50%;"></div>
+            <span class="body-2" style="color: var(--white);">Fatal</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 20px; height: 20px; background: hsl(30, 80%, 55%); border-radius: 50%;"></div>
+            <span class="body-2" style="color: var(--white);">Serious Injury</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 20px; height: 20px; background: hsl(38, 61%, 73%); border-radius: 50%;"></div>
+            <span class="body-2" style="color: var(--white);">Minor Injury</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 20px; height: 20px; background: hsl(0, 0%, 65%); border-radius: 50%;"></div>
+            <span class="body-2" style="color: var(--white);">Property Damage</span>
+          </div>
+        </div>
+      </div>
+      <div style="border-left: 1px solid var(--quick-silver); padding-left: 30px;">
+        <p class="body-2" style="color: var(--white); margin-bottom: 8px;"><strong>Total Crashes:</strong> ${crashData.length.toLocaleString()}</p>
+        <p class="body-2" style="color: var(--white);"><strong>Coverage:</strong> South Australia</p>
+        <p class="body-2" style="color: var(--gold-crayola); margin-top: 8px;"><strong>✓ Geographic Map Active</strong></p>
+      </div>
+    </div>
+  `;
+  container.appendChild(legend);
+  
+  // Add usage instructions
+  const instructions = document.createElement("p");
+  instructions.style.cssText = "text-align: center; color: var(--quick-silver); font-size: 1.1rem; margin-top: 15px; font-style: italic;";
+  instructions.textContent = "Tip: Scroll to zoom in/out, click and drag to pan, click markers for crash details";
+  container.appendChild(instructions);
+  
+  console.log("Geographic map rendered successfully!");
+}
+
+// ============================================
 // INITIALIZE VISUALIZATIONS ON PAGE LOAD
 // ============================================
 
@@ -809,6 +1151,25 @@ window.addEventListener("load", function() {
   // Create bar chart
   createBarChart();
   
-  // Create map
-  createMap();
+  // Create Leaflet geographic map with delay to ensure DOM is ready
+  setTimeout(() => {
+    if (typeof L !== 'undefined' && typeof RoadSafetyMap !== 'undefined') {
+      console.log("Leaflet version:", L.version);
+      console.log("Map container found:", document.getElementById('map-container') !== null);
+      
+      const roadMap = new RoadSafetyMap();
+      roadMap.initialize()
+        .then(() => {
+          console.log("All visualizations loaded successfully! ✅");
+        })
+        .catch(err => {
+          console.error("Map initialization error:", err);
+          console.error("Error stack:", err.stack);
+        });
+    } else {
+      console.error("Leaflet loaded:", typeof L !== 'undefined');
+      console.error("RoadSafetyMap loaded:", typeof RoadSafetyMap !== 'undefined');
+    }
+  }, 500);
 });
+
