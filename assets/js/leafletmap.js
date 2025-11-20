@@ -18,7 +18,7 @@
 
 	class RoadSafetyMap {
 		constructor() {
-			this.dataUrl = "./data/2020-2024_DATA_SA_Crash(filtered).csv";
+			this.dataUrl = "./data/_1_crash_locations(2015-2025).csv";
 			this.container = document.getElementById("map-container");
 			this.mapElementId = "sa-leaflet-map";
 			this.currentYear = "ALL";
@@ -39,6 +39,10 @@
 				average: null
 			};
 			this.hotspotList = null;
+			this.summaryTrigger = null;
+			this.summaryPanel = null;
+			this.summaryPanelOpen = false;
+			this.handleDocumentClick = this.handleDocumentClick.bind(this);
 		}
 
 		async initialize() {
@@ -54,10 +58,6 @@
 				throw new Error("RoadSafetyMap: D3 is required for CSV parsing.");
 			}
 
-			if (typeof proj4 === "undefined") {
-				throw new Error("RoadSafetyMap: proj4 is required for coordinate conversion.");
-			}
-
 			this.renderLayout();
 			await this.loadData();
 			this.initMap();
@@ -71,35 +71,47 @@
 				<div class="sa-map-wrapper">
 					<div id="${this.mapElementId}" class="sa-leaflet-map" aria-label="Crash hotspot map"></div>
 
-					<div class="map-overlay map-controls">
-						<div class="map-control-group">
-							<label for="map-year-filter">Year</label>
-							<select id="map-year-filter"></select>
+					<div class="map-overlay map-toolbar">
+						<div class="map-toolbar-left">
+							<button type="button" class="map-summary-trigger" id="map-summary-trigger" aria-expanded="false" aria-controls="map-summary-panel">
+								<span class="map-summary-label">Totals & Hotspots</span>
+								<span class="map-pill" id="map-filter-label">All Years • All Months</span>
+							</button>
+							<div class="map-summary-panel" id="map-summary-panel" role="status" aria-live="polite">
+								<div class="map-summary-grid">
+									<div class="map-summary-item">
+										<span>Total Crashes</span>
+										<strong id="stat-total-crashes">0</strong>
+									</div>
+									<div class="map-summary-item">
+										<span>Fatal & Serious</span>
+										<strong id="stat-severe-crashes">0</strong>
+									</div>
+									<div class="map-summary-item">
+										<span>Avg Casualties</span>
+										<strong id="stat-avg-casualties">0</strong>
+									</div>
+								</div>
+								<div class="map-hotspot-mini">
+									<p>Top Hotspots</p>
+									<div id="map-hotspot-list"></div>
+								</div>
+							</div>
 						</div>
-						<div class="map-control-group">
-							<label for="map-month-filter">Month</label>
-							<select id="map-month-filter"></select>
-						</div>
-					</div>
-
-					<div class="map-overlay map-stats" aria-live="polite">
-						<div class="map-stat-card">
-							<span>Total Crashes</span>
-							<strong id="stat-total-crashes">0</strong>
-						</div>
-						<div class="map-stat-card">
-							<span>Fatal & Serious</span>
-							<strong id="stat-severe-crashes">0</strong>
-						</div>
-						<div class="map-stat-card">
-							<span>Avg Casualties</span>
-							<strong id="stat-avg-casualties">0</strong>
+						<div class="map-toolbar-controls">
+							<div class="map-control-group">
+								<label for="map-year-filter">Year</label>
+								<select id="map-year-filter"></select>
+							</div>
+							<div class="map-control-group">
+								<label for="map-month-filter">Month</label>
+								<select id="map-month-filter"></select>
+							</div>
 						</div>
 					</div>
 
 					<div class="map-overlay map-legend">
-						<div class="map-pill" id="map-filter-label">All Years • All Months</div>
-						<h3 class="label-2" style="margin-top: 12px;">Heat Intensity</h3>
+						<h3 class="label-2">Heat Intensity</h3>
 						<div class="sa-map-gradient"></div>
 						<div class="legend-scale">
 							<span>Lower Risk</span>
@@ -108,11 +120,6 @@
 						<p class="body-4" style="margin-top: 10px; color: var(--quick-silver);">
 							Intensity weights fatalities (×3), serious injuries (×2) and minor injuries (×0.5).
 						</p>
-					</div>
-
-					<div class="map-overlay map-sidebar">
-						<h3>Top Crash Hotspots</h3>
-						<div id="map-hotspot-list"></div>
 					</div>
 				</div>
 			`;
@@ -124,65 +131,60 @@
 			this.statsEls.fatal = this.container.querySelector("#stat-severe-crashes");
 			this.statsEls.average = this.container.querySelector("#stat-avg-casualties");
 			this.hotspotList = this.container.querySelector("#map-hotspot-list");
+			this.summaryTrigger = this.container.querySelector("#map-summary-trigger");
+			this.summaryPanel = this.container.querySelector("#map-summary-panel");
 		}
 
 		async loadData() {
-			if (!proj4.defs("EPSG:28354")) {
-				proj4.defs(
-					"EPSG:28354",
-					"+proj=utm +zone=54 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
-				);
-			}
-
 			const rows = await d3.csv(this.dataUrl);
 
 			const processed = [];
 			for (const row of rows) {
-				const mgaX = parseFloat(row.ACCLOC_X);
-				const mgaY = parseFloat(row.ACCLOC_Y);
-
-				if (!Number.isFinite(mgaX) || !Number.isFinite(mgaY) || mgaX === 0 || mgaY === 0) {
-					continue;
-				}
-
-				let longitude;
-				let latitude;
-				try {
-					[longitude, latitude] = proj4("EPSG:28354", "EPSG:4326", [mgaX, mgaY]);
-				} catch (error) {
-					console.warn("RoadSafetyMap: Coordinate conversion failed", error);
-					continue;
-				}
+				const latitude = parseFloat(row.Crash_Latitude);
+				const longitude = parseFloat(row.Crash_Longitude);
 
 				if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
 					continue;
 				}
 
-				const fatalities = parseInt(row["Total Fats"], 10) || 0;
-				const serious = parseInt(row["Total SI"], 10) || 0;
-				const minor = parseInt(row["Total MI"], 10) || 0;
-				const casualties = parseInt(row["Total Cas"], 10) || 0;
+				const fatalities = parseInt(row.Count_Casualty_Fatality, 10) || 0;
+				const hospitalised = parseInt(row.Count_Casualty_Hospitalised, 10) || 0;
+				const medicallyTreated = parseInt(row.Count_Casualty_MedicallyTreated, 10) || 0;
+				const minorInjuries = parseInt(row.Count_Casualty_MinorInjury, 10) || 0;
+				const serious = hospitalised + medicallyTreated;
+				const casualties =
+					parseInt(row.Count_Casualty_Total, 10) ||
+					fatalities + hospitalised + medicallyTreated + minorInjuries;
 
-				const severityColor = this.getSeverityColor(fatalities, serious, minor);
-				const severityLabel = this.getSeverityLabel(fatalities, serious, minor);
-				const intensity = Math.max(0.4, fatalities * 3 + serious * 2 + Math.max(minor, 0) * 0.5 + 0.5);
+				const severityColor = this.getSeverityColor(fatalities, serious, minorInjuries);
+				const severityLabel = this.getSeverityLabel(fatalities, serious, minorInjuries);
+				const intensity = Math.max(
+					0.4,
+					fatalities * 3 + hospitalised * 2 + medicallyTreated * 1.5 + minorInjuries * 0.6 + 0.5
+				);
 
 				processed.push({
 					latitude,
 					longitude,
-					year: String(row.Year || row["Year"] || "").trim(),
-					month: this.normalizeMonth(row.Month),
-					suburb: (row.Suburb || "Unknown").trim(),
-					lga: (row["LGA Name"] || "Unknown").replace(/\.$/, "").trim(),
-					crashType: row["Crash Type"] || "Unknown",
-					date: `${row.Day || "Unknown"} ${row.Month || ""} ${row.Year || ""}`.trim(),
-					time: row.Time || "Unknown",
-					weather: row["Weather Cond"] || "Unknown",
-					dui: row["DUI Involved"] === "Y" ? "Yes" : "No",
+					year: String(row.Crash_Year || "").trim(),
+					month: this.normalizeMonth(row.Crash_Month),
+					suburb: (row.Loc_Suburb || "Unknown").trim(),
+					lga: (row.Loc_Local_Government_Area || row.Loc_ABS_Statistical_Area_3 || "Unknown").trim(),
+					crashType: row.Crash_Nature || row.Crash_Type || "Unknown",
+					date: `${row.Crash_Day_Of_Week || "Unknown"} ${row.Crash_Month || ""} ${row.Crash_Year || ""}`.trim(),
+					time: this.formatHour(row.Crash_Hour),
+					weather: row.Crash_Atmospheric_Condition || "Unknown",
+					surface: row.Crash_Road_Surface_Condition || "Unknown",
+					lighting: row.Crash_Lighting_Condition || "Unknown",
+					road: row.Crash_Street || row.State_Road_Name || "Unknown road",
+					region: row.Loc_Police_Region || row.Loc_Queensland_Transport_Region || "Unknown region",
 					casualties,
 					fatalities,
 					serious,
-					minor,
+					minor: minorInjuries,
+					hospitalised,
+					medicallyTreated,
+					minorInjuries,
 					severityColor,
 					severityLabel,
 					intensity
@@ -241,7 +243,7 @@
 				console.warn("RoadSafetyMap: leaflet.heat is missing; showing markers only.");
 			}
 		}
-
+// population filters for year and month
 		populateFilters() {
 			const years = Array.from(new Set(this.crashPoints.map((d) => d.year).filter(Boolean))).sort();
 
@@ -264,8 +266,16 @@
 				this.currentMonth = event.target.value;
 				this.updateVisualization();
 			});
+// if the summary panel and trigger exist, bind the click event to toggle the panel
+			if (this.summaryTrigger && this.summaryPanel) {
+				this.summaryTrigger.addEventListener("click", (event) => {
+					event.stopPropagation();
+					this.toggleSummaryPanel();
+				});
+				document.addEventListener("click", this.handleDocumentClick);
+			}
 		}
-
+// updateVisualization 
 		updateVisualization() {
 			this.filteredPoints = this.crashPoints.filter((point) => {
 				const matchYear = this.currentYear === "ALL" || point.year === this.currentYear;
@@ -273,16 +283,16 @@
 				return matchYear && matchMonth;
 			});
 
-			if (this.filteredPoints.length === 0) {
-				this.showEmptyState();
-				return;
+			if (this.filteredPoints.length === 0) { // no data for the selected filters
+				this.showEmptyState(); // show empty state when no data	
+				return; // exit early if no data
 			}
 
-			this.updateHeatLayer();
-			this.updateMarkers();
-			this.updateStats();
-			this.updateHotspots();
-			this.updateFilterLabel();
+			this.updateHeatLayer(); // update heat layer with filtered points
+			this.updateMarkers(); // update markers with filtered points
+			this.updateStats(); // update statistics based on filtered points
+			this.updateHotspots(); // update hotspot list based on filtered points
+			this.updateFilterLabel(); // update filter label to reflect current selections
 		}
 
 		updateHeatLayer() {
@@ -293,12 +303,12 @@
 			const heatPoints = this.filteredPoints.map((point) => [point.latitude, point.longitude, point.intensity]);
 			this.heatLayer.setLatLngs(heatPoints);
 		}
-
+// limit to first 400 points for markers
 		updateMarkers() {
 			if (this.markerLayer) {
 					this.markerLayer.remove();
 			}
-
+// limit to first 400 points for markers within updateMarkers to improve performance
 			const highlighted = this.filteredPoints.slice(0, 400);
 			const markers = highlighted.map((point) => {
 				const radius = Math.min(14, 4 + point.casualties * 0.6 + (point.fatalities > 0 ? 4 : 0));
@@ -313,7 +323,7 @@
 
 			this.markerLayer = L.layerGroup(markers).addTo(this.map);
 		}
-
+// update statistics based on filtered points
 		updateStats() {
 			const totals = this.filteredPoints.reduce(
 				(acc, point) => {
@@ -325,7 +335,7 @@
 				},
 				{ count: 0, fatal: 0, serious: 0, casualties: 0 }
 			);
-
+// count severe events with fatalities or serious injuries
 			const severeEvents = this.filteredPoints.filter((p) => p.fatalities > 0 || p.serious > 0).length;
 			const avgCasualties = totals.count > 0 ? totals.casualties / totals.count : 0;
 
@@ -333,24 +343,30 @@
 			this.statsEls.fatal.textContent = this.formatNumber(severeEvents);
 			this.statsEls.average.textContent = avgCasualties.toFixed(2);
 		}
-
+// update hotspot list based on filtered points
 		updateHotspots() {
 			const ranking = this.buildHotspotRanking();
 			this.hotspotList.innerHTML = "";
+			if (ranking.length === 0) {
+				this.hotspotList.innerHTML = `<p class="body-4" style="color: var(--quick-silver);">No hotspots for this filter.</p>`;
+				return;
+			}
 
-			ranking.forEach((item, index) => {
-				const div = document.createElement("div");
-				div.className = "hotspot-item";
-				div.innerHTML = `
-					<strong>${index + 1}. ${item.name}</strong>
-					<span>${this.formatNumber(item.count)} crashes • ${this.formatNumber(item.casualties)} casualties</span>
+			ranking.slice(0, 4).forEach((item, index) => {
+				const button = document.createElement("button");
+				button.type = "button";
+				button.className = "hotspot-chip";
+				button.innerHTML = `
+					<span>${index + 1}. ${item.name}</span>
+					<strong>${this.formatNumber(item.count)} • ${this.formatNumber(item.casualties)}</strong>
 				`;
-				div.addEventListener("click", () => {
+				button.addEventListener("click", () => {
 					if (item.lat && item.lng) {
 						this.map.flyTo([item.lat, item.lng], 12, { duration: 1.2 });
 					}
+					this.toggleSummaryPanel(false);
 				});
-				this.hotspotList.appendChild(div);
+				this.hotspotList.appendChild(button);
 			});
 		}
 
@@ -374,19 +390,44 @@
 			this.statsEls.average.textContent = "0";
 			this.filterLabel.textContent = "No data for selected filters";
 			this.hotspotList.innerHTML = `<p class="body-4" style="color: var(--quick-silver);">No records satisfy this filter.</p>`;
+			this.toggleSummaryPanel(false);
+		}
+
+		toggleSummaryPanel(force) {
+			if (!this.summaryPanel || !this.summaryTrigger) {
+				return;
+			}
+
+			const shouldOpen = typeof force === "boolean" ? force : !this.summaryPanelOpen;
+			this.summaryPanelOpen = shouldOpen;
+			this.summaryPanel.classList.toggle("is-visible", shouldOpen);
+			this.summaryTrigger.setAttribute("aria-expanded", String(shouldOpen));
+		}
+
+		handleDocumentClick(event) {
+			if (!this.summaryPanel || !this.summaryTrigger) {
+				return;
+			}
+
+			const clickedInsidePanel = this.summaryPanel.contains(event.target);
+			const clickedTrigger = this.summaryTrigger.contains(event.target);
+			if (!clickedInsidePanel && !clickedTrigger) {
+				this.toggleSummaryPanel(false);
+			}
 		}
 
 		buildPopup(point) {
 			return `
 				<div style="min-width: 220px;">
 					<h3 style="margin: 0 0 6px; color: var(--gold-crayola); font-size: 1rem;">${point.suburb}</h3>
-					<p style="margin: 0; font-size: 0.9rem; color: var(--quick-silver);">${point.date} • ${point.time}</p>
+					<p style="margin: 0; font-size: 0.85rem; color: var(--quick-silver);">${point.road}</p>
+					<p style="margin: 0; font-size: 0.85rem; color: var(--quick-silver);">${point.date} • ${point.time} • Region: ${point.region}</p>
 					<hr style="margin: 10px 0; border-color: rgba(255,255,255,0.15);">
 					<p style="margin: 4px 0;">Crash type: <strong>${point.crashType}</strong></p>
 					<p style="margin: 4px 0;">Severity: <strong style="color:${point.severityColor}">${point.severityLabel}</strong></p>
-					<p style="margin: 4px 0;">Casualties: ${this.formatNumber(point.casualties)} (Fatal ${point.fatalities}, Serious ${point.serious})</p>
-					<p style="margin: 4px 0;">Weather: ${point.weather}</p>
-					<p style="margin: 4px 0;">DUI involved: ${point.dui}</p>
+					<p style="margin: 4px 0;">Casualties: ${this.formatNumber(point.casualties)} (Fatal ${point.fatalities}, Hosp ${point.hospitalised}, Med ${point.medicallyTreated}, Minor ${point.minorInjuries})</p>
+					<p style="margin: 4px 0;">Surface: ${point.surface} • Weather: ${point.weather}</p>
+					<p style="margin: 4px 0;">Lighting: ${point.lighting}</p>
 				</div>
 			`;
 		}
@@ -437,8 +478,27 @@
 
 		normalizeMonth(value) {
 			const clean = (value || "").trim();
+			if (!clean) {
+				return "";
+			}
 			const formatted = clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
-			return MONTHS.includes(formatted) ? formatted : clean;
+			if (MONTHS.includes(formatted)) {
+				return formatted;
+			}
+			const asNumber = parseInt(clean, 10);
+			if (Number.isFinite(asNumber) && asNumber >= 1 && asNumber <= 12) {
+				return MONTHS[asNumber - 1];
+			}
+			return clean;
+		}
+
+		formatHour(value) {
+			const hour = parseInt(value, 10);
+			if (!Number.isFinite(hour)) {
+				return "Unknown";
+			}
+			const safeHour = Math.max(0, Math.min(23, hour));
+			return `${String(safeHour).padStart(2, "0")}:00`;
 		}
 
 		formatNumber(value) {

@@ -30,6 +30,7 @@
     - custom css link
   -->
   <link rel="stylesheet" href="./assets/css/style.css">
+  
 
   <!-- 
     - D3.js and Observable Plot for data visualization
@@ -476,25 +477,64 @@
         - #LINE CHART - SEASONAL CRASH PATTERNS
       -->
 
-      <section class="section service bg-black-10 text-center" aria-label="line chart" id="line-chart">
+      <section class="section service bg-black-10" aria-label="line chart" id="line-chart">
         <div class="container">
 
-          <p class="section-subtitle label-2">Temporal Analysis</p>
+          <p class="section-subtitle label-2 text-center">Temporal Analysis</p>
 
-          <h2 class="headline-1 section-title">Seasonal Crash Patterns</h2>
+          <h2 class="headline-1 section-title text-center">Seasonal Crash Patterns</h2>
 
-          <p class="section-text">
+          <p class="section-text text-center">
             This multi-series line chart reveals the seasonal patterns of road crashes in South Australia from 2020 to 2024. 
             Each line represents a different crash type (Rear End, Hit Fixed Object, Right Angle), showing the average number 
             of casualties per month. The visualization answers the question: <strong>"Is there a seasonal pattern to accidents?"</strong>
           </p>
+
+          <!-- Data Summary Cards -->
+          <div class="data-summary-grid" style="margin: 50px auto; max-width: 1200px;">
+            <div class="summary-card">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">63,241</span>
+                <span class="summary-label">Total Crashes</span>
+                <span class="summary-note">5 years of data</span>
+              </div>
+            </div>
+            
+            <div class="summary-card highlight">
+              <ion-icon name="warning-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">34%</span>
+                <span class="summary-label">Winter Spike</span>
+                <span class="summary-note">June-August peak</span>
+              </div>
+            </div>
+            
+            <div class="summary-card">
+              <ion-icon name="car-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">3</span>
+                <span class="summary-label">Top Types</span>
+                <span class="summary-note">Rear end, Hit object, Right angle</span>
+              </div>
+            </div>
+            
+            <div class="summary-card">
+              <ion-icon name="trending-up-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">2.1</span>
+                <span class="summary-label">Avg Casualties</span>
+                <span class="summary-note">Per crash incident</span>
+              </div>
+            </div>
+          </div>
 
           <!-- Chart container -->
           <div id="line-chart-container" style="margin: 50px auto; max-width: 1200px; background: var(--eerie-black-2); padding: 30px; border-radius: 24px;">
             <p class="body-2" style="color: var(--quick-silver);">Loading data visualization...</p>
           </div>
 
-          <p class="section-text" style="margin-top: 30px;">
+          <p class="section-text text-center" style="margin-top: 30px;">
             <strong>Key Insights:</strong> The chart helps identify whether certain crash types spike during specific seasons, 
             potentially due to weather conditions, holiday travel, or other seasonal factors. Understanding these patterns 
             can inform targeted road safety campaigns and enforcement strategies.
@@ -511,31 +551,147 @@
 
 
 
+      <!-- 
+        - #SAFETY INSIGHTS
+      -->
+
+      <section class="section safety-insights" aria-label="practical safety guidance" id="safety-insights">
+        <div class="container">
+
+          <p class="section-subtitle label-2">From Data To Action</p>
+
+          <h2 class="headline-1 section-title">Safety Insights You Can Use Today</h2>
+
+          <p class="section-text">
+            Each visualization on this page uncovers a behaviour that keeps people safer on the road. The cards below summarise those
+            findings so you can decide what to do differently on your next trip. Tap any card to jump to the supporting chart and explore the
+            evidence yourself.
+          </p>
+
+          <div class="insight-grid">
+            <article class="insight-card">
+              <div class="insight-icon" aria-hidden="true">
+                <ion-icon name="shield-checkmark-outline"></ion-icon>
+              </div>
+              <p class="insight-tag">Seatbelt Impact</p>
+              <h3 class="insight-title">Seatbelts cut fatal risk more than 4×</h3>
+              <p class="insight-body">
+                People who were properly restrained rarely appeared in the “Fatal” column of our seatbelt chart. The moment a belt is not
+                fitted or not worn, the fatal rate spikes sharply.
+              </p>
+              <a class="insight-link" href="#bar-chart" title="View the seatbelt chart">See the evidence ↗</a>
+            </article>
+
+            <article class="insight-card">
+              <div class="insight-icon" aria-hidden="true">
+                <ion-icon name="rainy-outline"></ion-icon>
+              </div>
+              <p class="insight-tag">Seasonal Trend</p>
+              <h3 class="insight-title">Rear-end crashes surge in wet winters</h3>
+              <p class="insight-body">
+                The seasonal line chart shows winter months with higher rear-end casualty averages. Add extra following distance after rain
+                or at dusk when braking distances lengthen.
+              </p>
+              <a class="insight-link" href="#line-chart" title="Jump to the seasonal crash chart">Check the trend ↗</a>
+            </article>
+
+            <article class="insight-card">
+              <div class="insight-icon" aria-hidden="true">
+                <ion-icon name="time-outline"></ion-icon>
+              </div>
+              <p class="insight-tag">Peak Congestion</p>
+              <h3 class="insight-title">Plan for 3‑6 PM risk windows</h3>
+              <p class="insight-body">
+                Crash logs highlight the afternoon commute as the busiest period for multi-vehicle incidents. A brief pause, a rest stop or
+                flexible working hours can remove you from that peak exposure.
+              </p>
+              <a class="insight-link" href="#map" title="Review geographic data">Explore hotspots ↗</a>
+            </article>
+
+            <article class="insight-card">
+              <div class="insight-icon" aria-hidden="true">
+                <ion-icon name="navigate-outline"></ion-icon>
+              </div>
+              <p class="insight-tag">Intersection Vigilance</p>
+              <h3 class="insight-title">Slow at urban crossroads</h3>
+              <p class="insight-body">
+                The interactive map ranks CBD suburbs as top crash hotspots, mostly right-angle collisions. Approach amber lights as a stop
+                signal and make deliberate shoulder checks before turning.
+              </p>
+              <a class="insight-link" href="#map" title="See hotspot ranking">Inspect the map ↗</a>
+            </article>
+          </div>
+
+        </div>
+      </section>
+
+
+
+
 
       <!-- 
         - #BAR CHART - SAFETY EQUIPMENT
       -->
 
-      <section class="section service text-center" aria-label="bar chart" id="bar-chart">
+      <section class="section service" aria-label="bar chart" id="bar-chart">
         <div class="container">
 
-          <p class="section-subtitle label-2">Safety Equipment Analysis</p>
+          <p class="section-subtitle label-2 text-center">Safety Equipment Analysis</p>
 
-          <h2 class="headline-1 section-title">Seatbelt Impact on Injury Severity</h2>
+          <h2 class="headline-1 section-title text-center">Seatbelt Impact on Injury Severity</h2>
 
-          <p class="section-text">
+          <p class="section-text text-center">
             This grouped bar chart examines the relationship between seatbelt usage and injury severity in South Australia 
             road crashes from 2020 to 2024. The visualization compares injury outcomes (Fatal, Admitted to Hospital, 
             Treated at Hospital, By Private) across different seatbelt usage categories, answering: 
             <strong>"Does wearing a seatbelt reduce injury severity?"</strong>
           </p>
 
+          <!-- Data Summary Cards -->
+          <div class="data-summary-grid" style="margin: 50px auto; max-width: 1200px;">
+            <div class="summary-card">
+              <ion-icon name="people-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">23,894</span>
+                <span class="summary-label">Total Casualties</span>
+                <span class="summary-note">2020-2024 period</span>
+              </div>
+            </div>
+            
+            <div class="summary-card highlight">
+              <ion-icon name="alert-circle-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">4.2×</span>
+                <span class="summary-label">Fatal Risk</span>
+                <span class="summary-note">Without seatbelt</span>
+              </div>
+            </div>
+            
+            <div class="summary-card">
+              <ion-icon name="shield-checkmark-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">94%</span>
+                <span class="summary-label">Compliance</span>
+                <span class="summary-note">Seatbelt usage rate</span>
+              </div>
+            </div>
+            
+            <div class="summary-card">
+              <ion-icon name="medkit-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">3</span>
+                <span class="summary-label">Categories</span>
+                <span class="summary-note">Worn, Not Worn, Not Fitted</span>
+              </div>
+            </div>
+          </div>
+
           <!-- Chart container -->
           <div id="bar-chart-container" style="margin: 50px auto; max-width: 1200px; background: var(--eerie-black-2); padding: 30px; border-radius: 24px;">
             <p class="body-2" style="color: var(--quick-silver);">Loading data visualization...</p>
           </div>
 
-          <p class="section-text" style="margin-top: 30px;">
+          <p class="section-text text-center" style="margin-top: 30px;">
             <strong>Key Insights:</strong> This analysis provides evidence-based insights into the life-saving impact of 
             seatbelt usage. The data clearly demonstrates the severity reduction when proper safety equipment is worn, 
             supporting enforcement of seatbelt laws and public safety campaigns.
@@ -557,25 +713,64 @@
         - #GEOGRAPHIC MAP
       -->
 
-      <section class="section service bg-black-10 text-center" aria-label="geographic map" id="map">
+      <section class="section service bg-black-10" aria-label="geographic map" id="map">
         <div class="container">
 
-          <p class="section-subtitle label-2">Geographic Analysis</p>
+          <p class="section-subtitle label-2 text-center">Geographic Analysis</p>
 
-          <h2 class="headline-1 section-title">Crash Distribution Across South Australia</h2>
+          <h2 class="headline-1 section-title text-center">Crash Distribution Across South Australia</h2>
 
-          <p class="section-text">
+          <p class="section-text text-center">
             This interactive map visualizes the geographic distribution of road crashes across South Australia from 2020 to 2024. 
             Each marker represents a crash location, color-coded by severity and sized by casualty count. The visualization answers: 
             <strong>"Where do most crashes occur and what is their severity?"</strong>
           </p>
+
+          <!-- Data Summary Cards -->
+          <div class="data-summary-grid" style="margin: 50px auto; max-width: 1200px;">
+            <div class="summary-card">
+              <ion-icon name="location-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">15,471</span>
+                <span class="summary-label">Mapped Crashes</span>
+                <span class="summary-note">With valid coordinates</span>
+              </div>
+            </div>
+            
+            <div class="summary-card highlight">
+              <ion-icon name="business-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">CBD</span>
+                <span class="summary-label">Top Hotspot</span>
+                <span class="summary-note">23% of all crashes</span>
+              </div>
+            </div>
+            
+            <div class="summary-card">
+              <ion-icon name="time-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">3-6 PM</span>
+                <span class="summary-label">Peak Window</span>
+                <span class="summary-note">Afternoon rush hour</span>
+              </div>
+            </div>
+            
+            <div class="summary-card">
+              <ion-icon name="git-compare-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">40%</span>
+                <span class="summary-label">Right-Angle</span>
+                <span class="summary-note">At intersections</span>
+              </div>
+            </div>
+          </div>
 
           <!-- Map container -->
           <div id="map-container" style="margin: 50px auto; max-width: 1300px; height: 700px; background: #ffffff; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); border: 3px solid var(--gold-crayola);">
             <!-- Leaflet map will be injected here -->
           </div>
 
-          <p class="section-text" style="margin-top: 30px;">
+          <p class="section-text text-center" style="margin-top: 30px;">
             <strong>Geographic Insights:</strong> This spatial analysis reveals high-risk areas and crash hotspots across the state. 
             Urban centers show higher crash frequency, while rural areas often exhibit higher severity rates. These patterns inform 
             infrastructure improvements, speed limit adjustments, and targeted road safety interventions.
@@ -846,7 +1041,7 @@
               <div class="feature-card">
 
                 <div class="card-icon">
-                  <img src="./assets/images/features-icon-2.png" width="100" height="80" loading="lazy" alt="comparative analysis icon">
+                  <img src="./assets/images/Screenshot 2025-11-17 081528.png" width="100" height="80" loading="lazy" alt="comparative analysis icon">
                 </div>
 
                 <h3 class="title-2 card-title">Comparative Analysis</h3>
@@ -874,7 +1069,7 @@
               <div class="feature-card">
 
                 <div class="card-icon">
-                  <img src="./assets/images/features-icon-4.png" width="100" height="80" loading="lazy" alt="statistical insights icon">
+                  <img src="./assets/images/Screenshot 2025-11-17 081441.png" width="100" height="80" loading="lazy" alt="statistical insights icon">
                 </div>
 
                 <h3 class="title-2 card-title">Statistical Insights</h3>
@@ -1102,8 +1297,7 @@
       <div class="footer-bottom">
 
         <p class="copyright">
-          &copy; 2025 Australia Road Safety Enforcement. All Rights Reserved | Crafted by <a href="https://github.com/codewithsadee"
-            target="_blank" class="link">codewithsadee</a>
+          &copy; 2025 Australia Road Safety Enforcement. All Rights Reserved | Crafted by <a href="https://cos30045-inti-subang.github.io/data-visualisation-project-dv_group25/">Jacob</a>
         </p>
 
       </div>

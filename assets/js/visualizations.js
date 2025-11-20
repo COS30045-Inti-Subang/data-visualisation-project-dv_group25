@@ -15,6 +15,57 @@
 let globalChartData = [];
 let globalRawData = [];
 const targetCrashTypes = ["Rear End", "Hit Fixed Object", "Right Angle"];
+const trackedSeatbeltStatuses = ["Fitted & Worn", "Not Worn", "Not Fitted"];
+const seatbeltColorScale = {
+  "Fitted & Worn": "hsl(138, 54%, 52%)",
+  "Not Worn": "hsl(28, 80%, 60%)",
+  "Not Fitted": "hsl(2, 78%, 58%)"
+};
+const injuryCategoryMap = new Map([
+  ["fatal", "Fatal"],
+  ["admitted to hospital", "Admitted to Hospital"],
+  ["admitted hospital", "Admitted to Hospital"],
+  ["treated at hospital", "Treated at Hospital"],
+  ["treated hospital", "Treated at Hospital"],
+  ["private doctor", "By Private"],
+  ["by private", "By Private"]
+]);
+
+function classifySeatbeltStatus(value = "") {
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) {
+    return "Unknown/Other";
+  }
+
+  if (normalized.includes("not fitted")) {
+    return "Not Fitted";
+  }
+
+  if (normalized.includes("not worn")) {
+    return "Not Worn";
+  }
+
+  if (normalized.includes("worn")) {
+    return "Fitted & Worn";
+  }
+
+  return "Unknown/Other";
+}
+
+function normalizeInjuryExtent(value = "") {
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) {
+    return "Other";
+  }
+
+  for (const [key, label] of injuryCategoryMap.entries()) {
+    if (normalized.includes(key)) {
+      return label;
+    }
+  }
+
+  return value;
+}
 
 async function createLineChart() {
   try {
@@ -301,7 +352,7 @@ function updateLineChart() {
 async function createBarChart() {
   try {
     // Load the casualty data
-    const data = await d3.csv("./data/2020-2024_DATA_SA_Casualty.csv");
+    const data = await d3.csv("./data/2020-2024_DATA_SA_Casualty(filtered).csv");
     
     console.log("Casualty data loaded:", data.length, "rows");
     console.log("Sample casualty row:", data[0]);
@@ -310,52 +361,38 @@ async function createBarChart() {
     const filteredData = data.filter(d => {
       const seatbelt = d["Seat Belt"];
       const injury = d["Injury Extent"];
-      
-      // Include only rows with seatbelt data (drivers and passengers)
-      return seatbelt && injury && 
-             (seatbelt.includes("Fitted") || seatbelt.includes("Child Restraint"));
+      return Boolean(seatbelt && injury);
     });
     
     console.log("Filtered casualty data:", filteredData.length, "rows");
     
     // Categorize seatbelt usage
-    const categorizedData = filteredData.map(d => {
-      const seatbelt = d["Seat Belt"];
-      let category = "Unknown";
-      
-      if (seatbelt.includes("Worn") || seatbelt.includes("Child Restraint - Worn")) {
-        category = "Worn";
-      } else if (seatbelt.includes("Not Worn")) {
-        category = "Not Worn";
-      } else if (seatbelt.includes("Unknown")) {
-        category = "Unknown";
-      } else if (seatbelt.includes("Not Fitted")) {
-        category = "Not Fitted";
-      }
-      
-      return {
-        seatbeltCategory: category,
-        injuryExtent: d["Injury Extent"],
-        casualtyType: d["Casualty Type"]
-      };
-    });
+    const categorizedData = filteredData.map(d => ({
+      seatbeltStatus: classifySeatbeltStatus(d["Seat Belt"] || ""),
+      injuryExtent: normalizeInjuryExtent(d["Injury Extent"] || ""),
+      casualtyType: d["Casualty Type"]
+    }));
     
     // Count by seatbelt category and injury extent
     const grouped = d3.rollup(
       categorizedData,
       v => v.length,
-      d => d.seatbeltCategory,
+      d => d.seatbeltStatus,
       d => d.injuryExtent
     );
     
     // Convert to flat array
     const chartData = [];
-    grouped.forEach((injuries, seatbelt) => {
+    grouped.forEach((injuries, seatbeltStatus) => {
+      if (!trackedSeatbeltStatuses.includes(seatbeltStatus)) {
+        return;
+      }
+
       injuries.forEach((count, injury) => {
         chartData.push({
-          seatbelt: seatbelt,
-          injury: injury,
-          count: count
+          seatbeltStatus,
+          injury,
+          count
         });
       });
     });
@@ -365,14 +402,6 @@ async function createBarChart() {
     // Filter for main injury categories
     const mainInjuries = ["Fatal", "Admitted to Hospital", "Treated at Hospital", "By Private"];
     const finalData = chartData.filter(d => mainInjuries.includes(d.injury));
-    
-    // Order seatbelt categories
-    const seatbeltOrder = ["Worn", "Not Worn", "Unknown", "Not Fitted"];
-    finalData.sort((a, b) => {
-      const orderA = seatbeltOrder.indexOf(a.seatbelt);
-      const orderB = seatbeltOrder.indexOf(b.seatbelt);
-      return orderA - orderB;
-    });
     
     // Create the bar chart
     renderBarChart(finalData);
@@ -386,17 +415,16 @@ async function createBarChart() {
 
 function renderBarChart(data) {
   const container = document.querySelector("#bar-chart-container");
-  
-  // Filter to only show "Worn" vs "Not Worn" for clearer comparison
-  const comparisonData = data.filter(d => 
-    d.seatbelt === "Worn" || d.seatbelt === "Not Worn"
-  );
-  
-  // Rename for better labels
-  const formattedData = comparisonData.map(d => ({
-    ...d,
-    seatbeltStatus: d.seatbelt === "Worn" ? "Fitted & Worn" : "Not Fitted/Not Worn"
-  }));
+
+  const seatbeltOrder = trackedSeatbeltStatuses;
+  const injuryOrder = ["Fatal", "Admitted to Hospital", "Treated at Hospital", "By Private"];
+  const formattedData = data
+    .filter((d) => seatbeltOrder.includes(d.seatbeltStatus) && injuryOrder.includes(d.injury))
+    .sort((a, b) => {
+      const injuryDiff = injuryOrder.indexOf(a.injury) - injuryOrder.indexOf(b.injury);
+      if (injuryDiff !== 0) return injuryDiff;
+      return seatbeltOrder.indexOf(a.seatbeltStatus) - seatbeltOrder.indexOf(b.seatbeltStatus);
+    });
   
   // Create the grouped bar chart (grouped by injury type)
   const plot = Plot.plot({
@@ -415,6 +443,7 @@ function renderBarChart(data) {
     
     x: {
       label: "Injury Severity →",
+      domain: injuryOrder,
       tickRotate: -15,
       padding: 0.3
     },
@@ -426,8 +455,8 @@ function renderBarChart(data) {
     
     color: {
       legend: true,
-      domain: ["Fitted & Worn", "Not Fitted/Not Worn"],
-      range: ["hsl(120, 50%, 50%)", "hsl(0, 70%, 55%)"], // Green vs Red
+      domain: seatbeltOrder,
+      range: seatbeltOrder.map((status) => seatbeltColorScale[status]),
       label: "Seatbelt Status"
     },
     
@@ -465,31 +494,67 @@ function renderBarChart(data) {
   // Insert plot
   container.innerHTML = "";
   container.appendChild(plot);
+
+  // Custom legend aligned with theme
+  const legend = document.createElement("div");
+  legend.className = "seatbelt-legend";
+  legend.innerHTML = `
+    <div class="legend-row">
+      ${seatbeltOrder.map((status) => `
+        <span class="legend-item">
+          <span class="legend-swatch" style="background:${seatbeltColorScale[status]};"></span>
+          ${status}
+        </span>
+      `).join("")}
+    </div>
+  `;
+  container.appendChild(legend);
   
   // Add summary statistics
-  const totalWorn = data.filter(d => d.seatbelt === "Worn").reduce((sum, d) => sum + d.count, 0);
-  const totalNotWorn = data.filter(d => d.seatbelt === "Not Worn").reduce((sum, d) => sum + d.count, 0);
-  const fatalWorn = data.find(d => d.seatbelt === "Worn" && d.injury === "Fatal")?.count || 0;
-  const fatalNotWorn = data.find(d => d.seatbelt === "Not Worn" && d.injury === "Fatal")?.count || 0;
-  
-  const fatalRateWorn = ((fatalWorn / totalWorn) * 100).toFixed(2);
-  const fatalRateNotWorn = ((fatalNotWorn / totalNotWorn) * 100).toFixed(2);
+  const totalsByStatus = d3.rollup(
+    formattedData,
+    (v) => d3.sum(v, (d) => d.count),
+    (d) => d.seatbeltStatus
+  );
+
+  const fatalByStatus = d3.rollup(
+    formattedData.filter((d) => d.injury === "Fatal"),
+    (v) => d3.sum(v, (d) => d.count),
+    (d) => d.seatbeltStatus
+  );
+
+  const summaryCards = seatbeltOrder.map((status) => {
+    const total = totalsByStatus.get(status) || 0;
+    const fatal = fatalByStatus.get(status) || 0;
+    const fatalRate = total > 0 ? ((fatal / total) * 100).toFixed(2) : "0.00";
+    return { status, total, fatalRate };
+  });
+
+  const riskMultiplier = (targetStatus) => {
+    const wornRate = Number(summaryCards[0].fatalRate);
+    const targetRate = Number(summaryCards.find((c) => c.status === targetStatus)?.fatalRate || 0);
+    if (!wornRate || !targetRate) {
+      return "-";
+    }
+    return (targetRate / wornRate).toFixed(1);
+  };
   
   const summary = document.createElement("div");
-  summary.style.cssText = "margin-top: 30px; padding: 20px; background: var(--eerie-black-1); border-radius: 12px; border: 1px solid var(--gold-crayola);";
+  summary.style.cssText = "margin-top: 20px; padding: 20px; background: var(--eerie-black-1); border-radius: 12px; border: 1px solid var(--gold-crayola);";
   summary.innerHTML = `
     <p class="body-1" style="color: var(--gold-crayola); margin-bottom: 15px; font-weight: 700;">📊 Statistical Summary</p>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; color: var(--white);">
-      <div>
-        <p class="body-2"><strong>Total casualties (seatbelt worn):</strong> ${totalWorn.toLocaleString()}</p>
-        <p class="body-2"><strong>Fatal rate (worn):</strong> ${fatalRateWorn}%</p>
-      </div>
-      <div>
-        <p class="body-2"><strong>Total casualties (not worn):</strong> ${totalNotWorn.toLocaleString()}</p>
-        <p class="body-2"><strong>Fatal rate (not worn):</strong> ${fatalRateNotWorn}%</p>
-      </div>
-      <div>
-        <p class="body-2" style="color: hsl(0, 70%, 60%);"><strong>Risk increase without seatbelt:</strong> ${(fatalRateNotWorn / fatalRateWorn).toFixed(1)}x higher</p>
+    <div class="insight-stats-grid">
+      ${summaryCards.map((card) => `
+        <div class="insight-stat-card">
+          <p class="body-2" style="text-transform: uppercase; letter-spacing: 0.08em; color: var(--quick-silver);">${card.status}</p>
+          <p class="body-1" style="color: var(--white); margin: 6px 0;"><strong>${card.total.toLocaleString()}</strong> casualties</p>
+          <p class="body-2" style="color: var(--gold-crayola);">Fatal rate: ${card.fatalRate}%</p>
+        </div>
+      `).join("")}
+      <div class="insight-stat-card" style="border-style: dashed;">
+        <p class="body-2" style="text-transform: uppercase; letter-spacing: 0.08em; color: var(--quick-silver);">Relative Risk</p>
+        <p class="body-2" style="color: var(--white); margin: 6px 0;">Not Worn vs Worn: <strong>${riskMultiplier("Not Worn")}x</strong></p>
+        <p class="body-2" style="color: var(--white);">Not Fitted vs Worn: <strong>${riskMultiplier("Not Fitted")}x</strong></p>
       </div>
     </div>
   `;

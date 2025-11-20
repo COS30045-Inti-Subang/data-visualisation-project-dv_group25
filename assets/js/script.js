@@ -168,3 +168,34 @@ window.addEventListener("mousemove", function (event) {
   }
 
 });
+
+
+
+/**
+ * SCROLL-TRIGGERED ANIMATIONS
+ */
+
+const observerOptions = {
+  threshold: 0.15,
+  rootMargin: '0px 0px -80px 0px'
+};
+
+const sectionObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('animate-in');
+      
+      // Trigger chart rendering on first view (performance optimization)
+      const chartId = entry.target.id;
+      if (!entry.target.dataset.rendered && 
+          (chartId === 'line-chart' || chartId === 'bar-chart' || chartId === 'map')) {
+        entry.target.dataset.rendered = 'true';
+      }
+    }
+  });
+}, observerOptions);
+
+// Observe all major sections
+document.querySelectorAll('.section').forEach(section => {
+  sectionObserver.observe(section);
+});
