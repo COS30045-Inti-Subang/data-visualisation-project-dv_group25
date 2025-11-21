@@ -1035,6 +1035,22 @@ body.nav-active { overflow: hidden; }
 
 .special-dish .btn { margin-inline: auto; }
 
+/* Allow crash storytelling section to span the full width on large screens */
+.special-dish.full-width-spotlight {
+  display: block;
+  text-align: center;
+}
+
+.special-dish.full-width-spotlight .container {
+  width: 100%;
+  max-width: 1300px;
+  margin-inline: auto;
+}
+
+.special-dish.full-width-spotlight .special-dish-content {
+  padding: clamp(48px, 6vw, 140px);
+}
+
 
 
 

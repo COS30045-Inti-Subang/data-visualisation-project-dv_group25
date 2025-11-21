@@ -403,6 +403,12 @@ async function createBarChart() {
     const mainInjuries = ["Fatal", "Admitted to Hospital", "Treated at Hospital", "By Private"];
     const finalData = chartData.filter(d => mainInjuries.includes(d.injury));
     
+    // Store data globally for filtering
+    window.barChartData = finalData;
+    
+    // Set up filter event listeners
+    setupBarChartFilters();
+    
     // Create the bar chart
     renderBarChart(finalData);
     
@@ -411,6 +417,38 @@ async function createBarChart() {
     const container = document.querySelector("#bar-chart-container");
     container.innerHTML = `<p class="body-2" style="color: hsl(0, 70%, 60%);">Error loading visualization: ${error.message}</p>`;
   }
+}
+
+function setupBarChartFilters() {
+  const filterCheckboxes = document.querySelectorAll('.bar-filter');
+  
+  filterCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+      updateBarChart();
+    });
+  });
+}
+
+function updateBarChart() {
+  // Get selected injury types
+  const selectedInjuries = Array.from(document.querySelectorAll('.bar-filter:checked'))
+    .map(cb => cb.value);
+  
+  // Ensure at least one filter is selected
+  if (selectedInjuries.length === 0) {
+    // Re-check the last unchecked box
+    const lastCheckbox = event.target;
+    lastCheckbox.checked = true;
+    return;
+  }
+  
+  // Filter data based on selected injuries
+  const filteredData = window.barChartData.filter(d => 
+    selectedInjuries.includes(d.injury)
+  );
+  
+  // Re-render the chart
+  renderBarChart(filteredData);
 }
 
 function renderBarChart(data) {

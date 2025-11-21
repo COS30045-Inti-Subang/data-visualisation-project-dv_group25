@@ -232,6 +232,7 @@ This project transformed the original Grilli restaurant template from codewithsa
 - **Coordinate System:** GDA94 / MGA zone 54 (South Australian standard)
 
 **3. Queensland Crash Locations** (`_1_crash_locations.csv`)
+
 - **Source:** [Queensland Government Data](https://www.data.qld.gov.au/dataset/crash-data-from-queensland-roads/resource/e88943c0-5968-4972-a15f-38e120d72ec0)
 - **Usage:** Geographic map visualization reference data
 
@@ -333,14 +334,16 @@ grilli/
 - **Source:** [GitHub Repository](https://github.com/codewithsadee/grilli)
 - **License:** MIT
 
-### Image References
+### Image & Video References
 
-- https://i.abcnewsfe.com/a/0af2a2f0-3e59-408a-b777-20b4fe81c121/texas-crash-01-ht-jt-231108_1699476775880_hpMain_16x9.jpg?w=992
-- https://assets.nst.com.my/images/articles/060625nstcrash01_1749175662.jpg
-- https://t4.ftcdn.net/jpg/01/77/70/23/360_F_177702320_r7v3wfRlbJNL56JBZvB2UkKpGO55xO0f.jpg
-- https://www.roadandtrack.com/news/a65315930/porsche-911-gt3-rs-bmw-m2-collide-in-fiery-crash-nurburgring-nordschleife/
-- https://hips.hearstapps.com/hmg-prod/images/gt3-rs-686be24e5443a.jpg?crop=1.00xw:0.768xh;0,0.0376xh&resize=640:*
-- Porsche accident video address: https://packaged-media.redd.it/fyx871fyfbbf1/pb/m2-res_1272p.mp4?m=DASHPlaylist.mpd&v=1&e=1762527600&s=c217157bcc718056374ac152ee52071e6856202a
+- ABC News. Texas crash image. [View Image](https://i.abcnewsfe.com/a/0af2a2f0-3e59-408a-b777-20b4fe81c121/texas-crash-01-ht-jt-231108_1699476775880_hpMain_16x9.jpg?w=992)
+- NST. Malaysia crash scene (June 2025). [View Image](https://assets.nst.com.my/images/articles/060625nstcrash01_1749175662.jpg)
+- FreeImages. Generic crash stock photo. [View Image](https://t4.ftcdn.net/jpg/01/77/70/23/360_F_177702320_r7v3wfRlbJNL56JBZvB2UkKpGO55xO0f.jpg)
+- Road & Track. (2025). "Porsche 911 GT3 RS & BMW M2 collide in fiery crash at Nürburgring Nordschleife." [Read Article](https://www.roadandtrack.com/news/a65315930/porsche-911-gt3-rs-bmw-m2-collide-in-fiery-crash-nurburgring-nordschleife/)
+- Hearst Autos. Porsche GT3 RS crash aftermath. [View Image](https://hips.hearstapps.com/hmg-prod/images/gt3-rs-686be24e5443a.jpg?crop=1.00xw:0.768xh;0,0.0376xh&resize=640:*)
+- Reddit. Porsche accident footage (packaged media). [View Video](https://packaged-media.redd.it/fyx871fyfbbf1/pb/m2-res_1272p.mp4?m=DASHPlaylist.mpd&v=1&e=1762527600&s=c217157bcc718056374ac152ee52071e6856202a)
+- Dexerto. (2025). Nürburgring crash documentation. [View Image](https://www.dexerto.com/cdn-image/wp-content/uploads/2025/07/07/nurbugring-crash.jpg?width=1200&quality=60&format=auto) (Accessed: 1 November 2025)
+- Autoblog. Porsche-BMW Nürburgring collision scene. [View Image](https://www.autoblog.com/.image/c_fill,g_faces:center/NzowMDAwMDAwMDAwOTE3MTgw/porsche-911-gt3-rs-bmw-m2-nurburgring-crash-4.jpg)
 
 ---
 

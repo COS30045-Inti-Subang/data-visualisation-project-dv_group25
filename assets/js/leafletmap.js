@@ -18,7 +18,7 @@
 
 	class RoadSafetyMap {
 		constructor() {
-			this.dataUrl = "./data/_1_crash_locations(2015-2025).csv";
+			this.dataUrl = "./data/_1_crash_locations(2018-2025).csv";
 			this.container = document.getElementById("map-container");
 			this.mapElementId = "sa-leaflet-map";
 			this.currentYear = "ALL";
@@ -28,6 +28,7 @@
 			this.markerLayer = null;
 			this.crashPoints = [];
 			this.filteredPoints = [];
+			this.filteredStats = [];
 			this.maxPoints = 20000; // keep the map performant
 
 			this.yearSelect = null;
@@ -192,7 +193,7 @@
 			}
 
 			processed.sort((a, b) => b.intensity - a.intensity);
-			this.crashPoints = processed.slice(0, this.maxPoints);
+			this.crashPoints = processed;
 
 			if (this.crashPoints.length === 0) {
 				throw new Error("RoadSafetyMap: No crash records with valid coordinates were found.");
@@ -277,16 +278,19 @@
 		}
 // updateVisualization 
 		updateVisualization() {
-			this.filteredPoints = this.crashPoints.filter((point) => {
+			const filtered = this.crashPoints.filter((point) => {
 				const matchYear = this.currentYear === "ALL" || point.year === this.currentYear;
 				const matchMonth = this.currentMonth === "ALL" || point.month === this.currentMonth;
 				return matchYear && matchMonth;
 			});
 
-			if (this.filteredPoints.length === 0) { // no data for the selected filters
+			if (filtered.length === 0) { // no data for the selected filters
 				this.showEmptyState(); // show empty state when no data	
 				return; // exit early if no data
 			}
+
+			this.filteredStats = filtered;
+			this.filteredPoints = filtered.slice(0, this.maxPoints);
 
 			this.updateHeatLayer(); // update heat layer with filtered points
 			this.updateMarkers(); // update markers with filtered points
@@ -325,7 +329,7 @@
 		}
 // update statistics based on filtered points
 		updateStats() {
-			const totals = this.filteredPoints.reduce(
+			const totals = this.filteredStats.reduce(
 				(acc, point) => {
 					acc.count += 1;
 					acc.fatal += point.fatalities;
@@ -336,7 +340,7 @@
 				{ count: 0, fatal: 0, serious: 0, casualties: 0 }
 			);
 // count severe events with fatalities or serious injuries
-			const severeEvents = this.filteredPoints.filter((p) => p.fatalities > 0 || p.serious > 0).length;
+			const severeEvents = this.filteredStats.filter((p) => p.fatalities > 0 || p.serious > 0).length;
 			const avgCasualties = totals.count > 0 ? totals.casualties / totals.count : 0;
 
 			this.statsEls.total.textContent = this.formatNumber(totals.count);
@@ -384,6 +388,9 @@
 				this.markerLayer.remove();
 				this.markerLayer = null;
 			}
+
+			this.filteredPoints = [];
+			this.filteredStats = [];
 
 			this.statsEls.total.textContent = "0";
 			this.statsEls.fatal.textContent = "0";
@@ -434,8 +441,9 @@
 
 		buildHotspotRanking() {
 			const summary = new Map();
+			const source = this.filteredStats.length ? this.filteredStats : this.filteredPoints;
 
-			this.filteredPoints.forEach((point) => {
+			source.forEach((point) => {
 				const key = point.suburb || point.lga || "Unknown";
 				if (!summary.has(key)) {
 					summary.set(key, {

@@ -597,7 +597,7 @@
 
             <article class="insight-card">
               <div class="insight-icon" aria-hidden="true">
-                <ion-icon name="time-outline"></ion-icon>
+                <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
               </div>
               <p class="insight-tag">Peak Congestion</p>
               <h3 class="insight-title">Plan for 3‑6 PM risk windows</h3>
@@ -683,6 +683,33 @@
                 <span class="summary-label">Categories</span>
                 <span class="summary-note">Worn, Not Worn, Not Fitted</span>
               </div>
+            </div>
+          </div>
+
+          <!-- Filter Controls -->
+          <div style="margin: 30px auto; max-width: 1200px; text-align: center;">
+            <div style="display: inline-flex; gap: 15px; flex-wrap: wrap; justify-content: center; align-items: center; padding: 20px; background: var(--eerie-black-2); border-radius: 16px; border: 2px solid rgba(253, 214, 162, 0.2);">
+              <span class="label-2" style="color: var(--gold-crayola); margin-right: 10px;">Filter Injury Types:</span>
+              
+              <label style="display: flex; align-items: center; gap: 8px; color: var(--quick-silver); cursor: pointer;">
+                <input type="checkbox" id="filter-fatal" class="bar-filter" value="Fatal" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--gold-crayola);">
+                <span class="body-4">Fatal</span>
+              </label>
+              
+              <label style="display: flex; align-items: center; gap: 8px; color: var(--quick-silver); cursor: pointer;">
+                <input type="checkbox" id="filter-admitted" class="bar-filter" value="Admitted to Hospital" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--gold-crayola);">
+                <span class="body-4">Admitted to Hospital</span>
+              </label>
+              
+              <label style="display: flex; align-items: center; gap: 8px; color: var(--quick-silver); cursor: pointer;">
+                <input type="checkbox" id="filter-treated" class="bar-filter" value="Treated at Hospital" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--gold-crayola);">
+                <span class="body-4">Treated at Hospital</span>
+              </label>
+              
+              <label style="display: flex; align-items: center; gap: 8px; color: var(--quick-silver); cursor: pointer;">
+                <input type="checkbox" id="filter-private" class="bar-filter" value="By Private" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--gold-crayola);">
+                <span class="body-4">By Private</span>
+              </label>
             </div>
           </div>
 
@@ -789,13 +816,148 @@
 
 
       <!-- 
+        - #REAL WORLD CONSEQUENCES
+      -->
+
+      <section class="section special-dish text-center full-width-spotlight" aria-labelledby="crash-stories" id="crash-stories">
+        <div class="container">
+
+          <div class="special-dish-content bg-black-10">
+            <img src="./assets/images/badge-1.png" width="28" height="41" loading="lazy" alt="badge" class="abs-img">
+
+            <p class="section-subtitle label-2">When Data Becomes Reality</p>
+
+            <h2 class="headline-1 section-title">The Human Cost of Speed</h2>
+
+            <p class="section-text">
+              Behind every data point on our charts is a real incident. High-profile crashes demonstrate that even 
+              advanced engineering cannot overcome <strong>physics and human reaction time</strong>. These two incidents 
+              show how quickly things can go wrong—and why our data matters.
+            </p>
+
+            <p class="section-text">
+              Our South Australia data mirrors these patterns: <strong>"Rear End"</strong> crashes are among the most 
+              common types, often caused by distraction, tailgating, or misjudging closing speeds. The map above shows 
+              where these crashes cluster—primarily urban intersections during peak hours.
+            </p>
+
+            <!-- Video Grid -->
+            <div class="crash-video-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin: 40px 0;">
+              
+              <!-- Video 1: Nürburgring Crash -->
+              <article class="video-card" style="background: var(--eerie-black-2); border-radius: 16px; overflow: hidden; border: 2px solid rgba(253, 214, 162, 0.3);">
+                <a href="https://www.youtube.com/watch?v=jF4XrBTJJFk" target="_blank" rel="noopener" class="video-thumbnail" style="display: block; position: relative;">
+                  <img src="https://img.youtube.com/vi/jF4XrBTJJFk/maxresdefault.jpg" 
+                       alt="Porsche GT3 RS and BMW M2 crash at Nürburgring" 
+                       style="width: 100%; height: 250px; object-fit: cover; display: block;">
+                  <div class="play-overlay" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                       background: rgba(0,0,0,0.7); width: 80px; height: 80px; border-radius: 50%; 
+                       display: flex; align-items: center; justify-content: center; border: 3px solid var(--gold-crayola);">
+                    <ion-icon name="play" style="font-size: 2.5rem; color: var(--gold-crayola); margin-left: 5px;"></ion-icon>
+                  </div>
+                </a>
+                <div style="padding: 20px;">
+                  <h3 class="title-3" style="color: var(--gold-crayola); margin-bottom: 12px;">Nürburgring High-Speed Collision</h3>
+                  <p class="body-2" style="color: var(--quick-silver); margin-bottom: 12px;">
+                    Porsche 911 GT3 RS vs BMW M2. Even on a controlled track with professional drivers, 
+                    misjudging closing speed leads to devastating rear-end impacts.
+                  </p>
+                  <div class="related-factors">
+                    <p class="factors-title" style="font-family: var(--fontFamily-forum); font-size: 1.2rem; color: var(--gold-crayola); margin-bottom: 8px;">
+                      Related Crash Factors:
+                    </p>
+                    <ul class="factors-list" style="display: flex; flex-direction: column; gap: 8px; list-style: none; padding: 0;">
+                      <li style="display: flex; align-items: flex-start; gap: 8px; color: var(--quick-silver); font-size: 1.05rem;">
+                        <ion-icon name="speedometer-outline" style="flex-shrink: 0; color: var(--gold-crayola); font-size: 1.5rem; margin-top: 2px;"></ion-icon>
+                        <span>Excessive speed differential</span>
+                      </li>
+                      <li style="display: flex; align-items: flex-start; gap: 8px; color: var(--quick-silver); font-size: 1.05rem;">
+                        <ion-icon name="eye-off-outline" style="flex-shrink: 0; color: var(--gold-crayola); font-size: 1.5rem; margin-top: 2px;"></ion-icon>
+                        <span>Situational awareness failure</span>
+                      </li>
+                      <li style="display: flex; align-items: flex-start; gap: 8px; color: var(--quick-silver); font-size: 1.05rem;">
+                        <ion-icon name="resize-outline" style="flex-shrink: 0; color: var(--gold-crayola); font-size: 1.5rem; margin-top: 2px;"></ion-icon>
+                        <span>Insufficient following distance</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Video 2: McLaren Crash -->
+              <article class="video-card" style="background: var(--eerie-black-2); border-radius: 16px; overflow: hidden; border: 2px solid rgba(253, 214, 162, 0.3);">
+                <a href="https://www.youtube.com/shorts/_rFBrfN4dtE" target="_blank" rel="noopener" class="video-thumbnail" style="display: block; position: relative;">
+                  <img src="https://img.youtube.com/vi/_rFBrfN4dtE/maxresdefault.jpg" 
+                       alt="McLaren high-speed crash" 
+                       style="width: 100%; height: 250px; object-fit: cover; display: block;">
+                  <div class="play-overlay" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                       background: rgba(0,0,0,0.7); width: 80px; height: 80px; border-radius: 50%; 
+                       display: flex; align-items: center; justify-content: center; border: 3px solid var(--gold-crayola);">
+                    <ion-icon name="play" style="font-size: 2.5rem; color: var(--gold-crayola); margin-left: 5px;"></ion-icon>
+                  </div>
+                  <div class="shorts-badge" style="position: absolute; top: 12px; right: 12px; background: rgba(255,0,0,0.9); 
+                       padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; color: white;">
+                    Shorts
+                  </div>
+                </a>
+                <div style="padding: 20px;">
+                  <h3 class="title-3" style="color: var(--gold-crayola); margin-bottom: 12px;">McLaren Supercar Loss of Control</h3>
+                  <p class="body-2" style="color: var(--quick-silver); margin-bottom: 12px;">
+                    Raw power without skill leads to catastrophic outcomes. This incident shows how quickly 
+                    a situation can escalate when driver ability doesn't match vehicle performance.
+                  </p>
+                  <div class="related-factors">
+                    <p class="factors-title" style="font-family: var(--fontFamily-forum); font-size: 1.2rem; color: var(--gold-crayola); margin-bottom: 8px;">
+                      Related Crash Factors:
+                    </p>
+                    <ul class="factors-list" style="display: flex; flex-direction: column; gap: 8px; list-style: none; padding: 0;">
+                      <li style="display: flex; align-items: flex-start; gap: 8px; color: var(--quick-silver); font-size: 1.05rem;">
+                        <ion-icon name="warning-outline" style="flex-shrink: 0; color: var(--gold-crayola); font-size: 1.4rem; margin-top: 2px;"></ion-icon>
+                        <span>Loss of vehicle control</span>
+                      </li>
+                      <li style="display: flex; align-items: flex-start; gap: 8px; color: var(--quick-silver); font-size: 1.05rem;">
+                        <ion-icon name="snow-outline" style="flex-shrink: 0; color: var(--gold-crayola); font-size: 1.4rem; margin-top: 2px;"></ion-icon>
+                        <span>Adverse road conditions</span>
+                      </li>
+                      <li style="display: flex; align-items: flex-start; gap: 8px; color: var(--quick-silver); font-size: 1.05rem;">
+                        <ion-icon name="cellular-outline" style="flex-shrink: 0; color: var(--gold-crayola); font-size: 1.4rem; margin-top: 2px;"></ion-icon>
+                        <span>Overconfidence in vehicle capability</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </article>
+
+            </div>
+
+            <!-- Call to Action -->
+            <div class="wrapper" style="margin-top: 30px;">
+              <del class="del body-3">Risk Factor:</del>
+              <span class="span body-1">Following too close increases crash likelihood by 3x</span>
+            </div>
+
+            <a href="#line-chart" class="btn btn-primary" style="margin-top: 24px;">
+              <span class="text text-1">Explore Seasonal Data</span>
+              <span class="text text-2" aria-hidden="true">Explore Seasonal Data</span>
+            </a>
+
+          </div>
+
+        </div>
+      </section>
+
+
+
+
+
+      <!-- 
         - #KEY INSIGHTS
       -->
 
       <section class="section about text-center" aria-labelledby="insights-label" id="insights">
         <div class="container">
 
-          <div class="about-content">
+          <div class="about-content>
 
             <p class="label-2 section-subtitle" id="insights-label">Data-Driven Findings</p>
 
@@ -824,11 +986,11 @@
 
           <figure class="about-banner">
 
-            <img src="./assets/images/about-banner.jpg" width="570" height="570" loading="lazy" alt="data analysis visualization"
+            <img src="./assets/images/nurbugring-crash.avif" width="570" height="570" loading="lazy" alt="data analysis visualization"
               class="w-100" data-parallax-item data-parallax-speed="1">
 
-            <div class="abs-img abs-img-1 has-before" data-parallax-item data-parallax-speed="1.75">
-              <img src="./assets/images/about-abs-image.jpg" width="285" height="285" loading="lazy" alt="crash data"
+            <div class="abs-img abs-img-1 has-before" data-parallax-item data-parallax-speed="1.75" style="position: static; width: 100%; max-width: 570px; margin-top: 20px; transform: none;">
+              <img src="./assets/images/5dlk51rk_porsche-gt3-rs-crashes-with-bmw-m2-at-nurburgring_625x300_07_July_25.jpg" width="570" height="285" loading="lazy" alt="crash data"
                 class="w-100">
             </div>
 
@@ -861,7 +1023,7 @@
       -->
 
       <section class="section testi text-center has-bg-image"
-        style="background-image: url('./assets/images/testimonial-bg.jpg')" aria-label="testimonials">
+        style="background-image: url('./assets/images/porsche-911-gt3-rs-bmw-m2-nurburgring-crash-4.jpg')" aria-label="testimonials">
         <div class="container">
 
           <div class="quote">"</div>
@@ -878,7 +1040,7 @@
           </div>
 
           <div class="profile">
-            <img src="./assets/images/testi-avatar.jpg" width="100" height="100" loading="lazy" alt="Data Analyst"
+            <img src="./assets/images/WhatsApp Image 2024-09-12 at 11.31.30_c8a3e57a.jpg" width="100" height="100" loading="lazy" alt="Data Analyst"
               class="img">
 
             <p class="label-2 profile-name">Road Safety Researcher</p>
@@ -903,13 +1065,13 @@
 
             <div class="form-left">
 
-              <h2 class="headline-1 text-center">Data Methodology</h2>
+              <h2 class="headline-1 text-center" style="margin-top: 40px; margin-bottom: 20px;">Data Methodology</h2>
 
               <p class="form-text text-center">
                 Our analysis uses rigorous data processing workflows to ensure accurate insights
               </p>
 
-              <div style="padding: 30px; text-align: left;">
+              <div style="padding: 30px 30px 30px 30px; text-align: left; margin-top: 20px;">
                 <h3 class="title-2" style="color: var(--gold-crayola); margin-bottom: 20px;">Data Processing Pipeline</h3>
                 
                 <div style="margin-bottom: 25px;">
@@ -1111,7 +1273,7 @@
               <div class="event-card has-before hover:shine">
 
                 <div class="card-banner img-holder" style="--width: 350; --height: 450;">
-                  <img src="./assets/images/event-1.jpg" width="350" height="450" loading="lazy"
+                  <img src="./assets/images/360_F_177702320_r7v3wfRlbJNL56JBZvB2UkKpGO55xO0f.jpg" width="350" height="450" loading="lazy"
                     alt="Seasonal crash patterns analysis" class="img-cover">
 
                   <time class="publish-date label-2" datetime="2020-2024">2020-2024</time>
@@ -1132,7 +1294,7 @@
               <div class="event-card has-before hover:shine">
 
                 <div class="card-banner img-holder" style="--width: 350; --height: 450;">
-                  <img src="./assets/images/event-2.jpg" width="350" height="450" loading="lazy"
+                  <img src="./assets/images/060625nstcrash01_1749175662.jpg" width="350" height="450" loading="lazy"
                     alt="Seatbelt effectiveness study" class="img-cover">
 
                   <time class="publish-date label-2" datetime="2020-2024">2020-2024</time>
@@ -1153,7 +1315,7 @@
               <div class="event-card has-before hover:shine">
 
                 <div class="card-banner img-holder" style="--width: 350; --height: 450;">
-                  <img src="./assets/images/event-3.jpg" width="350" height="450" loading="lazy"
+                  <img src="./assets/images/mclaren_accident.jpg" width="350" height="450" loading="lazy"
                     alt="Crash type distribution analysis" class="img-cover">
 
                   <time class="publish-date label-2" datetime="2020-2024">2020-2024</time>
@@ -1193,7 +1355,7 @@
   -->
 
   <footer class="footer section has-bg-image text-center"
-    style="background-image: url('./assets/images/footer-bg.jpg')">
+    style="background-image: url('./assets/images/Gemini_Generated_Image_ozw7guozw7guozw7\(nobackground\).PNG')">
     <div class="container">
 
       <div class="footer-top grid-list">
