@@ -20,3 +20,6 @@ assignment_information_exerciseinfo/
 
 # GitHub folder
 .github/
+
+# Large GeoJSON files
+assets/js/australia-states.geojson
