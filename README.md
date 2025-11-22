@@ -4,7 +4,7 @@
 
 An interactive data visualization website analyzing South Australia road crash and casualty data (2020-2024). Built on the Grilli restaurant template, repurposed for COS30045 Data Visualisation project at Swinburne University of Technology.
 
-**[View Local Demo](http://127.0.0.1:5500/index.html)**
+**[View Local Demo](https://cos30045-inti-subang.github.io/data-visualisation-project-dv_group25/)**
 
 ---
 

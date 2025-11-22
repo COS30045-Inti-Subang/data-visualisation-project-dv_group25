@@ -18,7 +18,7 @@
 
 	class RoadSafetyMap {
 		constructor() {
-			this.dataUrl = "./data/crash_locations.csv";
+			this.dataUrl = "./data/_1_crash_locations.csv";
 			this.container = document.getElementById("map-container");
 			this.mapElementId = "sa-leaflet-map";
 			this.currentYear = "ALL";
@@ -141,8 +141,10 @@
 
 			const processed = [];
 			for (const row of rows) {
-				const latitude = parseFloat(row.Crash_Latitude);
-				const longitude = parseFloat(row.Crash_Longitude);
+				const rawLatitude = row.Crash_Latitude ?? row["Crash_Latitude (Rounded)"] ?? row.latitude;
+				const rawLongitude = row.Crash_Longitude ?? row["Crash_Longitude (Rounded)"] ?? row.longitude;
+				const latitude = parseFloat(rawLatitude);
+				const longitude = parseFloat(rawLongitude);
 
 				if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
 					continue;
