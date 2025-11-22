@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--HEAD-->
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- 
+    - primary meta tags
+  -->
+  <title>Road Safety Data Visualization - South Australia Crash Analysis</title>
+  <meta name="title" content="Road Safety Data Visualization">
+  <meta name="description" content="Interactive visualization of South Australia road crash and casualty data (2020-2024)">
+
+  <!-- 
+    - favicon
+  -->
+  <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+
+  <!-- 
+    - google font link
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Forum&display=swap" rel="stylesheet">
+
+  <!-- 
+    - custom css link
+  -->
+  <link rel="stylesheet" href="./assets/css/style.css">
+  
+
+  <!-- 
+    - D3.js and Observable Plot for data visualization
+  -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6"></script>
+  
+  <!-- 
+    - Leaflet.js for interactive geographic maps
+  -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+  
+  <!-- Proj4.js for coordinate projection conversion -->
+  <script src="https://cdn.jsdelivr.net/npm/proj4@2.9.0/dist/proj4.js"></script>
+  
+  <!-- Custom Leaflet styling -->
+  <style>
+    /* Custom popup styling */
+    .leaflet-popup-content-wrapper {
+      background: rgba(20, 20, 20, 0.95) !important;
+      color: #ffffff !important;
+      border-radius: 12px !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important;
+      border: 2px solid var(--gold-crayola) !important;
+      padding: 0 !important;
+    }
+    
+    .leaflet-popup-content {
+      margin: 16px !important;
+      font-size: 1rem !important;
+      line-height: 1.6 !important;
+    }
+    
+    .leaflet-popup-tip {
+      background: rgba(20, 20, 20, 0.95) !important;
+      border: 2px solid var(--gold-crayola) !important;
+    }
+    
+    /* Custom tooltip styling */
+    .leaflet-tooltip {
+      background: rgba(0, 0, 0, 0.9) !important;
+      color: #fbbf24 !important;
+      border: 2px solid #fbbf24 !important;
+      border-radius: 8px !important;
+      padding: 8px 12px !important;
+      font-size: 1rem !important;
+      font-weight: 600 !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+    }
+    
+    .leaflet-tooltip-top:before {
+      border-top-color: #fbbf24 !important;
+    }
+    
+    /* Legend styling */
+    .leaflet-legend {
+      pointer-events: auto !important;
+    }
+    
+    /* State label styling */
+    .state-label {
+      z-index: 1000 !important;
+    }
+    
+    /* Zoom control styling - keep mostly default */
+    .leaflet-control-zoom a {
+      background: white !important;
+      color: #333 !important;
+      border: 2px solid rgba(0,0,0,0.2) !important;
+    }
+    
+    .leaflet-control-zoom a:hover {
+      background: #f4f4f4 !important;
+    }
+    
+    /* Attribution styling */
+    .leaflet-control-attribution {
+      background: rgba(255, 255, 255, 0.8) !important;
+      font-size: 0.85rem !important;
+    }
+    
+    /* Layer control styling */
+    .leaflet-control-layers {
+      background: white !important;
+      border: 2px solid rgba(0,0,0,0.2) !important;
+      border-radius: 4px !important;
+    }
+    
+    .leaflet-control-zoom a:hover {
+      background: var(--gold-crayola) !important;
+      color: #000000 !important;
+    }
+    
+    /* Layer control styling */
+    .leaflet-control-layers {
+      background: rgba(20, 20, 20, 0.9) !important;
+      color: #ffffff !important;
+      border: 2px solid var(--gold-crayola) !important;
+      border-radius: 8px !important;
+    }
+    
+    .leaflet-control-layers-toggle {
+      background-image: none !important;
+      width: 36px !important;
+      height: 36px !important;
+    }
+    
+    .leaflet-control-layers-toggle:after {
+      content: '🗺️';
+      font-size: 1.5rem;
+      display: block;
+      text-align: center;
+      line-height: 36px;
+    }
+    
+    /* Ensure map container is properly sized and visible */
+    #map-container {
+      position: relative !important;
+      width: 100% !important;
+      height: 700px !important;
+      overflow: hidden !important;
+    }
+    
+    /* Ensure Leaflet container fills parent properly */
+    #map-container .leaflet-container {
+      width: 100% !important;
+      height: 100% !important;
+      background: #ffffff !important;
+      border-radius: 8px !important;
+    }
+    
+    /* CRITICAL: Ensure tiles are fully visible with no transparency */
+    .leaflet-tile-container img,
+    .leaflet-tile {
+      opacity: 1 !important;
+      filter: none !important;
+      -webkit-filter: none !important;
+    }
+    
+    /* Ensure map layers render properly */
+    .leaflet-map-pane,
+    .leaflet-tile-pane {
+      opacity: 1 !important;
+      filter: none !important;
+    }
+  </style>
+  
+  <!-- 
+    - preload images
+  -->
+  <link rel="preload" as="image" href="./assets/images/mclaren_accident.jpg">
+  <link rel="preload" as="image" href="./assets/images/360_F_177702320_r7v3wfRlbJNL56JBZvB2UkKpGO55xO0f.jpg">
+  <link rel="preload" as="image" href="./assets/images/060625nstcrash01_1749175662.jpg">
+
+</head>
+
+<body id="top">
+
+  <!-- 
+    - #PRELOADER
+  -->
+
+  <div class="preload" data-preaload>
+    <div class="circle"></div>
+    <p class="text">Road Safety Data Visualization</p>
+  </div>
+
+
+
+
+
+  <!-- 
+    - #TOP BAR
+  -->
+
+  <div class="topbar">
+    <div class="container">
+
+      <address class="topbar-item">
+        <div class="icon">
+          <ion-icon name="location-outline" aria-hidden="true"></ion-icon>
+        </div>
+
+        <span class="span">
+          Swinburne University, Melbourne, Australia
+        </span>
+      </address>
+
+      <div class="separator"></div>
+
+      <div class="topbar-item item-2">
+        <div class="icon">
+          <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
+        </div>
+
+        <span class="span">Dataset: 2020 - 2024</span>
+      </div>
+
+      <a href="https://data.sa.gov.au" class="topbar-item link" target="_blank">
+        <div class="icon">
+          <ion-icon name="globe-outline" aria-hidden="true"></ion-icon>
+        </div>
+
+        <span class="span">Data Source: data.sa.gov.au</span>
+      </a>
+
+      <div class="separator"></div>
+
+      <a href="mailto:student@swin.edu.au" class="topbar-item link">
+        <div class="icon">
+          <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+        </div>
+
+        <span class="span">student@swin.edu.au</span>
+      </a>
+
+    </div>
+  </div>
+
+
+
+
+
+  <!-- 
+    - #HEADER
+  -->
+
+  <header class="header" data-header>
+    <div class="container">
+
+      <a href="index.html" class="logo">
+        <img src="./assets/images/Gemini_Generated_Image_ozw7guozw7guozw7(nobackground).PNG" width="160" height="50" alt="Grilli - Home">
+      </a>
+
+      <nav class="navbar" data-navbar>
+
+        <button class="close-btn" aria-label="close menu" data-nav-toggler>
+          <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+        </button>
+
+        <a href="#" class="logo">
+          <img src="./assets/images/Gemini_Generated_Image_ozw7guozw7guozw7(nobackground).PNG" width="160" height="50" alt="Road Safety Data - Home">
+        </a>
+
+        <ul class="navbar-list">
+
+          <li class="navbar-item">
+            <a href="#home" class="navbar-link hover-underline active">
+              <div class="separator"></div>
+
+              <span class="span">Home</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="#line-chart" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">Seasonal Trends</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="#bar-chart" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">Safety Analysis</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="#map" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">Geographic View</span>
+            </a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="#about" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">About</span>
+            </a>
+          </li>
+
+        </ul>
+
+        <div class="text-center">
+          <p class="headline-1 navbar-title">Project Info</p>
+
+          <address class="body-4">
+            COS30045 Data Visualisation <br>
+            Swinburne University, 2025
+          </address>
+
+          <p class="body-4 navbar-text">Dataset: SA Road Crashes 2020-2024</p>
+
+          <a href="mailto:student@swin.edu.au" class="body-4 sidebar-link">student@swin.edu.au</a>
+
+          <div class="separator"></div>
+
+          <p class="contact-label">Data Source</p>
+
+          <a href="https://data.sa.gov.au" class="body-1 contact-number hover-underline" target="_blank">
+            data.sa.gov.au
+          </a>
+        </div>
+
+      </nav>
+
+      <a href="#line-chart" class="btn btn-secondary">
+        <span class="text text-1">Explore Data</span>
+
+        <span class="text text-2" aria-hidden="true">Explore Data</span>
+      </a>
+
+      <button class="nav-open-btn" aria-label="open menu" data-nav-toggler>
+        <span class="line line-1"></span>
+        <span class="line line-2"></span>
+        <span class="line line-3"></span>
+      </button>
+
+      <div class="overlay" data-nav-toggler data-overlay></div>
+
+    </div>
+  </header>
+
+
+
+
+
+  <main>
+    <article>
+
+      <!-- 
+        - #HERO
+      -->
+
+      <section class="hero text-center" aria-label="home" id="home">
+
+        <ul class="hero-slider" data-hero-slider>
+
+          <li class="slider-item active" data-hero-slider-item>
+
+            <div class="slider-bg">
+              <img src="./assets/images/mclaren_accident.jpg" width="1880" height="950" alt="" class="img-cover">
+            </div>
+
+            <p class="label-2 section-subtitle slider-reveal">Data-Driven Insights</p>
+
+            <h1 class="display-1 hero-title slider-reveal">
+              Crashes Occurred <br>
+              in the Wild
+            </h1>
+
+            <p class="body-2 hero-text slider-reveal">
+              Exploring South Australia road safety data from 2020 to 2024
+            </p>
+
+            <a href="#line-chart" class="btn btn-primary slider-reveal">
+              <span class="text text-1">View Analysis</span>
+
+              <span class="text text-2" aria-hidden="true">View Analysis</span>
+            </a>
+
+          </li>
+
+          <li class="slider-item" data-hero-slider-item>
+
+            <div class="slider-bg">
+              <img src="./assets/images/360_F_177702320_r7v3wfRlbJNL56JBZvB2UkKpGO55xO0f.jpg" width="1880" height="950" alt="" class="img-cover">
+            </div>
+
+            <p class="label-2 section-subtitle slider-reveal">Interactive Visualizations</p>
+
+            <h1 class="display-1 hero-title slider-reveal">
+              Understanding <br>
+              Seasonal Patterns
+            </h1>
+
+            <p class="body-2 hero-text slider-reveal">
+              Discover how crash types vary throughout the year
+            </p>
+
+            <a href="#line-chart" class="btn btn-primary slider-reveal">
+              <span class="text text-1">Explore Trends</span>
+
+              <span class="text text-2" aria-hidden="true">Explore Trends</span>
+            </a>
+
+          </li>
+
+          <li class="slider-item" data-hero-slider-item>
+
+            <div class="slider-bg">
+              <img src="./assets/images/060625nstcrash01_1749175662.jpg" width="1880" height="950" alt="" class="img-cover">
+            </div>
+
+            <p class="label-2 section-subtitle slider-reveal">Evidence-Based Safety</p>
+
+            <h1 class="display-1 hero-title slider-reveal">
+              Every Data Point <br>
+              Tells a Story
+            </h1>
+
+            <p class="body-2 hero-text slider-reveal">
+              Analyzing 63,000+ crash records for safer roads
+            </p>
+
+            <a href="#bar-chart" class="btn btn-primary slider-reveal">
+              <span class="text text-1">See Insights</span>
+
+              <span class="text text-2" aria-hidden="true">See Insights</span>
+            </a>
+
+          </li>
+
+        </ul>
+
+        <button class="slider-btn prev" aria-label="slide to previous" data-prev-btn>
+          <ion-icon name="chevron-back"></ion-icon>
+        </button>
+
+        <button class="slider-btn next" aria-label="slide to next" data-next-btn>
+          <ion-icon name="chevron-forward"></ion-icon>
+        </button>
+
+        <a href="#line-chart" class="hero-btn has-after">
+          <img src="./assets/images/hero-icon.png" width="48" height="48" alt="data icon">
+
+          <span class="label-2 text-center span">Explore Data</span>
+        </a>
+
+      </section>
+
+
+
+
+
+      <!-- 
+        - #LINE CHART - SEASONAL CRASH PATTERNS
+      -->
+
+      <section class="section service bg-black-10" aria-label="line chart" id="line-chart">
+        <div class="container">
+
+          <p class="section-subtitle label-2 text-center">Temporal Analysis</p>
+
+          <h2 class="headline-1 section-title text-center">Seasonal Crash Patterns</h2>
+
+          <p class="section-text text-center">
+            This multi-series line chart reveals the seasonal patterns of road crashes in South Australia from 2020 to 2024. 
+            Each line represents a different crash type (Rear End, Hit Fixed Object, Right Angle), showing the average number 
+            of casualties per month. The visualization answers the question: <strong>"Is there a seasonal pattern to accidents?"</strong>
+          </p>
+
+          <!-- Data Summary Cards -->
+          <div class="data-summary-grid" style="margin: 50px auto; max-width: 1200px;">
+            <div class="summary-card">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">63,241</span>
+                <span class="summary-label">Total Crashes</span>
+                <span class="summary-note">5 years of data</span>
+              </div>
+            </div>
+            
+            <div class="summary-card highlight">
+              <ion-icon name="warning-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">34%</span>
+                <span class="summary-label">Winter Spike</span>
+                <span class="summary-note">June-August peak</span>
+              </div>
+            </div>
+            
+            <div class="summary-card">
+              <ion-icon name="car-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">3</span>
+                <span class="summary-label">Top Types</span>
+                <span class="summary-note">Rear end, Hit object, Right angle</span>
+              </div>
+            </div>
+            
+            <div class="summary-card">
+              <ion-icon name="trending-up-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">2.1</span>
+                <span class="summary-label">Avg Casualties</span>
+                <span class="summary-note">Per crash incident</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chart container -->
+          <div id="line-chart-container" style="margin: 50px auto; max-width: 1200px; background: var(--eerie-black-2); padding: 30px; border-radius: 24px;">
+            <p class="body-2" style="color: var(--quick-silver);">Loading data visualization...</p>
+          </div>
+
+          <p class="section-text text-center" style="margin-top: 30px;">
+            <strong>Key Insights:</strong> The chart helps identify whether certain crash types spike during specific seasons, 
+            potentially due to weather conditions, holiday travel, or other seasonal factors. Understanding these patterns 
+            can inform targeted road safety campaigns and enforcement strategies.
+          </p>
+
+          <img src="./assets/images/shape-1.png" width="246" height="412" loading="lazy" alt="shape"
+            class="shape shape-1 move-anim">
+          <img src="./assets/images/shape-2.png" width="343" height="345" loading="lazy" alt="shape"
+            class="shape shape-2 move-anim">
+
+        </div>
+      </section>
+
+
+
+
+      <!-- 
+        - #SAFETY INSIGHTS
+      -->
+
+      <section class="section safety-insights" aria-label="practical safety guidance" id="safety-insights">
+        <div class="container">
+
+          <p class="section-subtitle label-2">From Data To Action</p>
+
+          <h2 class="headline-1 section-title">Safety Insights You Can Use Today</h2>
+
+          <p class="section-text">
+            Each visualization on this page uncovers a behaviour that keeps people safer on the road. The cards below summarise those
+            findings so you can decide what to do differently on your next trip. Tap any card to jump to the supporting chart and explore the
+            evidence yourself.
+          </p>
+
+          <div class="insight-grid">
+            <article class="insight-card">
+              <div class="insight-icon" aria-hidden="true">
+                <ion-icon name="shield-checkmark-outline"></ion-icon>
+              </div>
+              <p class="insight-tag">Seatbelt Impact</p>
+              <h3 class="insight-title">Seatbelts cut fatal risk more than 4×</h3>
+              <p class="insight-body">
+                People who were properly restrained rarely appeared in the “Fatal” column of our seatbelt chart. The moment a belt is not
+                fitted or not worn, the fatal rate spikes sharply.
+              </p>
+              <a class="insight-link" href="#bar-chart" title="View the seatbelt chart">See the evidence ↗</a>
+            </article>
+
+            <article class="insight-card">
+              <div class="insight-icon" aria-hidden="true">
+                <ion-icon name="rainy-outline"></ion-icon>
+              </div>
+              <p class="insight-tag">Seasonal Trend</p>
+              <h3 class="insight-title">Rear-end crashes surge in wet winters</h3>
+              <p class="insight-body">
+                The seasonal line chart shows winter months with higher rear-end casualty averages. Add extra following distance after rain
+                or at dusk when braking distances lengthen.
+              </p>
+              <a class="insight-link" href="#line-chart" title="Jump to the seasonal crash chart">Check the trend ↗</a>
+            </article>
+
+            <article class="insight-card">
+              <div class="insight-icon" aria-hidden="true">
+                <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
+              </div>
+              <p class="insight-tag">Peak Congestion</p>
+              <h3 class="insight-title">Plan for 3‑6 PM risk windows</h3>
+              <p class="insight-body">
+                Crash logs highlight the afternoon commute as the busiest period for multi-vehicle incidents. A brief pause, a rest stop or
+                flexible working hours can remove you from that peak exposure.
+              </p>
+              <a class="insight-link" href="#map" title="Review geographic data">Explore hotspots ↗</a>
+            </article>
+
+            <article class="insight-card">
+              <div class="insight-icon" aria-hidden="true">
+                <ion-icon name="navigate-outline"></ion-icon>
+              </div>
+              <p class="insight-tag">Intersection Vigilance</p>
+              <h3 class="insight-title">Slow at urban crossroads</h3>
+              <p class="insight-body">
+                The interactive map ranks CBD suburbs as top crash hotspots, mostly right-angle collisions. Approach amber lights as a stop
+                signal and make deliberate shoulder checks before turning.
+              </p>
+              <a class="insight-link" href="#map" title="See hotspot ranking">Inspect the map ↗</a>
+            </article>
+          </div>
+
+        </div>
+      </section>
+
+
+
+
+
+      <!-- 
+        - #BAR CHART - SAFETY EQUIPMENT
+      -->
+
+      <section class="section service" aria-label="bar chart" id="bar-chart">
+        <div class="container">
+
+          <p class="section-subtitle label-2 text-center">Safety Equipment Analysis</p>
+
+          <h2 class="headline-1 section-title text-center">Seatbelt Impact on Injury Severity</h2>
+
+          <p class="section-text text-center">
+            This grouped bar chart examines the relationship between seatbelt usage and injury severity in South Australia 
+            road crashes from 2020 to 2024. The visualization compares injury outcomes (Fatal, Admitted to Hospital, 
+            Treated at Hospital, By Private) across different seatbelt usage categories, answering: 
+            <strong>"Does wearing a seatbelt reduce injury severity?"</strong>
+          </p>
+
+          <!-- Data Summary Cards -->
+          <div class="data-summary-grid" style="margin: 50px auto; max-width: 1200px;">
+            <div class="summary-card">
+              <ion-icon name="people-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">23,894</span>
+                <span class="summary-label">Total Casualties</span>
+                <span class="summary-note">2020-2024 period</span>
+              </div>
+            </div>
+            
+            <div class="summary-card highlight">
+              <ion-icon name="alert-circle-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">4.2×</span>
+                <span class="summary-label">Fatal Risk</span>
+                <span class="summary-note">Without seatbelt</span>
+              </div>
+            </div>
+            
+            <div class="summary-card">
+              <ion-icon name="shield-checkmark-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">94%</span>
+                <span class="summary-label">Compliance</span>
+                <span class="summary-note">Seatbelt usage rate</span>
+              </div>
+            </div>
+            
+            <div class="summary-card">
+              <ion-icon name="medkit-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">3</span>
+                <span class="summary-label">Categories</span>
+                <span class="summary-note">Worn, Not Worn, Not Fitted</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filter Controls -->
+          <div style="margin: 30px auto; max-width: 1200px; text-align: center;">
+            <div style="display: inline-flex; gap: 15px; flex-wrap: wrap; justify-content: center; align-items: center; padding: 20px; background: var(--eerie-black-2); border-radius: 16px; border: 2px solid rgba(253, 214, 162, 0.2);">
+              <span class="label-2" style="color: var(--gold-crayola); margin-right: 10px;">Filter Injury Types:</span>
+              
+              <label style="display: flex; align-items: center; gap: 8px; color: var(--quick-silver); cursor: pointer;">
+                <input type="checkbox" id="filter-fatal" class="bar-filter" value="Fatal" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--gold-crayola);">
+                <span class="body-4">Fatal</span>
+              </label>
+              
+              <label style="display: flex; align-items: center; gap: 8px; color: var(--quick-silver); cursor: pointer;">
+                <input type="checkbox" id="filter-admitted" class="bar-filter" value="Admitted to Hospital" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--gold-crayola);">
+                <span class="body-4">Admitted to Hospital</span>
+              </label>
+              
+              <label style="display: flex; align-items: center; gap: 8px; color: var(--quick-silver); cursor: pointer;">
+                <input type="checkbox" id="filter-treated" class="bar-filter" value="Treated at Hospital" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--gold-crayola);">
+                <span class="body-4">Treated at Hospital</span>
+              </label>
+              
+              <label style="display: flex; align-items: center; gap: 8px; color: var(--quick-silver); cursor: pointer;">
+                <input type="checkbox" id="filter-private" class="bar-filter" value="By Private" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--gold-crayola);">
+                <span class="body-4">By Private</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Chart container -->
+          <div id="bar-chart-container" style="margin: 50px auto; max-width: 1200px; background: var(--eerie-black-2); padding: 30px; border-radius: 24px;">
+            <p class="body-2" style="color: var(--quick-silver);">Loading data visualization...</p>
+          </div>
+
+          <p class="section-text text-center" style="margin-top: 30px;">
+            <strong>Key Insights:</strong> This analysis provides evidence-based insights into the life-saving impact of 
+            seatbelt usage. The data clearly demonstrates the severity reduction when proper safety equipment is worn, 
+            supporting enforcement of seatbelt laws and public safety campaigns.
+          </p>
+
+          <img src="./assets/images/shape-3.png" width="197" height="194" loading="lazy" alt="shape"
+            class="shape shape-1 move-anim">
+          <img src="./assets/images/shape-2.png" width="343" height="345" loading="lazy" alt="shape"
+            class="shape shape-2 move-anim">
+
+        </div>
+      </section>
+
+
+
+
+
+      <!-- 
+        - #GEOGRAPHIC MAP
+      -->
+
+      <section class="section service bg-black-10" aria-label="geographic map" id="map">
+        <div class="container">
+
+          <p class="section-subtitle label-2 text-center">Geographic Analysis</p>
+
+          <h2 class="headline-1 section-title text-center">Crash Distribution Across South Australia</h2>
+
+          <p class="section-text text-center">
+            This interactive map visualizes the geographic distribution of road crashes across South Australia from 2020 to 2024. 
+            Each marker represents a crash location, color-coded by severity and sized by casualty count. The visualization answers: 
+            <strong>"Where do most crashes occur and what is their severity?"</strong>
+          </p>
+
+          <!-- Data Summary Cards -->
+          <div class="data-summary-grid" style="margin: 50px auto; max-width: 1200px;">
+            <div class="summary-card">
+              <ion-icon name="location-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">15,471</span>
+                <span class="summary-label">Mapped Crashes</span>
+                <span class="summary-note">With valid coordinates</span>
+              </div>
+            </div>
+            
+            <div class="summary-card highlight">
+              <ion-icon name="business-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">CBD</span>
+                <span class="summary-label">Top Hotspot</span>
+                <span class="summary-note">23% of all crashes</span>
+              </div>
+            </div>
+            
+            <div class="summary-card">
+              <ion-icon name="time-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">3-6 PM</span>
+                <span class="summary-label">Peak Window</span>
+                <span class="summary-note">Afternoon rush hour</span>
+              </div>
+            </div>
+            
+            <div class="summary-card">
+              <ion-icon name="git-compare-outline"></ion-icon>
+              <div class="summary-content">
+                <span class="summary-number">40%</span>
+                <span class="summary-label">Right-Angle</span>
+                <span class="summary-note">At intersections</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Map container -->
+          <div id="map-container" style="margin: 50px auto; max-width: 1300px; height: 700px; background: #ffffff; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); border: 3px solid var(--gold-crayola);">
+            <!-- Leaflet map will be injected here -->
+          </div>
+
+          <p class="section-text text-center" style="margin-top: 30px;">
+            <strong>Geographic Insights:</strong> This spatial analysis reveals high-risk areas and crash hotspots across the state. 
+            Urban centers show higher crash frequency, while rural areas often exhibit higher severity rates. These patterns inform 
+            infrastructure improvements, speed limit adjustments, and targeted road safety interventions.
+          </p>
+
+          <img src="./assets/images/shape-1.png" width="246" height="412" loading="lazy" alt="shape"
+            class="shape shape-1 move-anim">
+          <img src="./assets/images/shape-2.png" width="343" height="345" loading="lazy" alt="shape"
+            class="shape shape-2 move-anim">
+
+        </div>
+      </section>
+
+
+
+
+
+      <!-- 
+        - #REAL WORLD CONSEQUENCES
+      -->
+
+      <section class="section special-dish text-center full-width-spotlight" aria-labelledby="crash-stories" id="crash-stories">
+        <div class="container">
+
+          <div class="special-dish-content bg-black-10">
+            <img src="./assets/images/badge-1.png" width="28" height="41" loading="lazy" alt="badge" class="abs-img">
+
+            <p class="section-subtitle label-2">When Data Becomes Reality</p>
+
+            <h2 class="headline-1 section-title">The Human Cost of Speed</h2>
+
+            <p class="section-text">
+              Behind every data point on our charts is a real incident. High-profile crashes demonstrate that even 
+              advanced engineering cannot overcome <strong>physics and human reaction time</strong>. These two incidents 
+              show how quickly things can go wrong—and why our data matters.
+            </p>
+
+            <p class="section-text">
+              Our South Australia data mirrors these patterns: <strong>"Rear End"</strong> crashes are among the most 
+              common types, often caused by distraction, tailgating, or misjudging closing speeds. The map above shows 
+              where these crashes cluster—primarily urban intersections during peak hours.
+            </p>
+
+            <!-- Video Grid -->
+            <div class="crash-video-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin: 40px 0;">
+              
+              <!-- Video 1: Nürburgring Crash -->
+              <article class="video-card" style="background: var(--eerie-black-2); border-radius: 16px; overflow: hidden; border: 2px solid rgba(253, 214, 162, 0.3);">
+                <a href="https://www.youtube.com/watch?v=jF4XrBTJJFk" target="_blank" rel="noopener" class="video-thumbnail" style="display: block; position: relative;">
+                  <img src="https://img.youtube.com/vi/jF4XrBTJJFk/maxresdefault.jpg" 
+                       alt="Porsche GT3 RS and BMW M2 crash at Nürburgring" 
+                       style="width: 100%; height: 250px; object-fit: cover; display: block;">
+                  <div class="play-overlay" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                       background: rgba(0,0,0,0.7); width: 80px; height: 80px; border-radius: 50%; 
+                       display: flex; align-items: center; justify-content: center; border: 3px solid var(--gold-crayola);">
+                    <ion-icon name="play" style="font-size: 2.5rem; color: var(--gold-crayola); margin-left: 5px;"></ion-icon>
+                  </div>
+                </a>
+                <div style="padding: 20px;">
+                  <h3 class="title-3" style="color: var(--gold-crayola); margin-bottom: 12px;">Nürburgring High-Speed Collision</h3>
+                  <p class="body-2" style="color: var(--quick-silver); margin-bottom: 12px;">
+                    Porsche 911 GT3 RS vs BMW M2. Even on a controlled track with professional drivers, 
+                    misjudging closing speed leads to devastating rear-end impacts.
+                  </p>
+                  <div class="related-factors">
+                    <p class="factors-title" style="font-family: var(--fontFamily-forum); font-size: 1.2rem; color: var(--gold-crayola); margin-bottom: 8px;">
+                      Related Crash Factors:
+                    </p>
+                    <ul class="factors-list" style="display: flex; flex-direction: column; gap: 8px; list-style: none; padding: 0;">
+                      <li style="display: flex; align-items: flex-start; gap: 8px; color: var(--quick-silver); font-size: 1.05rem;">
+                        <ion-icon name="speedometer-outline" style="flex-shrink: 0; color: var(--gold-crayola); font-size: 1.5rem; margin-top: 2px;"></ion-icon>
+                        <span>Excessive speed differential</span>
+                      </li>
+                      <li style="display: flex; align-items: flex-start; gap: 8px; color: var(--quick-silver); font-size: 1.05rem;">
+                        <ion-icon name="eye-off-outline" style="flex-shrink: 0; color: var(--gold-crayola); font-size: 1.5rem; margin-top: 2px;"></ion-icon>
+                        <span>Situational awareness failure</span>
+                      </li>
+                      <li style="display: flex; align-items: flex-start; gap: 8px; color: var(--quick-silver); font-size: 1.05rem;">
+                        <ion-icon name="resize-outline" style="flex-shrink: 0; color: var(--gold-crayola); font-size: 1.5rem; margin-top: 2px;"></ion-icon>
+                        <span>Insufficient following distance</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </article>
+
+              <!-- Video 2: McLaren Crash -->
+              <article class="video-card" style="background: var(--eerie-black-2); border-radius: 16px; overflow: hidden; border: 2px solid rgba(253, 214, 162, 0.3);">
+                <a href="https://www.youtube.com/shorts/_rFBrfN4dtE" target="_blank" rel="noopener" class="video-thumbnail" style="display: block; position: relative;">
+                  <img src="https://img.youtube.com/vi/_rFBrfN4dtE/maxresdefault.jpg" 
+                       alt="McLaren high-speed crash" 
+                       style="width: 100%; height: 250px; object-fit: cover; display: block;">
+                  <div class="play-overlay" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                       background: rgba(0,0,0,0.7); width: 80px; height: 80px; border-radius: 50%; 
+                       display: flex; align-items: center; justify-content: center; border: 3px solid var(--gold-crayola);">
+                    <ion-icon name="play" style="font-size: 2.5rem; color: var(--gold-crayola); margin-left: 5px;"></ion-icon>
+                  </div>
+                  <div class="shorts-badge" style="position: absolute; top: 12px; right: 12px; background: rgba(255,0,0,0.9); 
+                       padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; color: white;">
+                    Shorts
+                  </div>
+                </a>
+                <div style="padding: 20px;">
+                  <h3 class="title-3" style="color: var(--gold-crayola); margin-bottom: 12px;">McLaren Supercar Loss of Control</h3>
+                  <p class="body-2" style="color: var(--quick-silver); margin-bottom: 12px;">
+                    Raw power without skill leads to catastrophic outcomes. This incident shows how quickly 
+                    a situation can escalate when driver ability doesn't match vehicle performance.
+                  </p>
+                  <div class="related-factors">
+                    <p class="factors-title" style="font-family: var(--fontFamily-forum); font-size: 1.2rem; color: var(--gold-crayola); margin-bottom: 8px;">
+                      Related Crash Factors:
+                    </p>
+                    <ul class="factors-list" style="display: flex; flex-direction: column; gap: 8px; list-style: none; padding: 0;">
+                      <li style="display: flex; align-items: flex-start; gap: 8px; color: var(--quick-silver); font-size: 1.05rem;">
+                        <ion-icon name="warning-outline" style="flex-shrink: 0; color: var(--gold-crayola); font-size: 1.4rem; margin-top: 2px;"></ion-icon>
+                        <span>Loss of vehicle control</span>
+                      </li>
+                      <li style="display: flex; align-items: flex-start; gap: 8px; color: var(--quick-silver); font-size: 1.05rem;">
+                        <ion-icon name="snow-outline" style="flex-shrink: 0; color: var(--gold-crayola); font-size: 1.4rem; margin-top: 2px;"></ion-icon>
+                        <span>Adverse road conditions</span>
+                      </li>
+                      <li style="display: flex; align-items: flex-start; gap: 8px; color: var(--quick-silver); font-size: 1.05rem;">
+                        <ion-icon name="cellular-outline" style="flex-shrink: 0; color: var(--gold-crayola); font-size: 1.4rem; margin-top: 2px;"></ion-icon>
+                        <span>Overconfidence in vehicle capability</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </article>
+
+            </div>
+
+            <!-- Call to Action -->
+            <div class="wrapper" style="margin-top: 30px;">
+              <del class="del body-3">Risk Factor:</del>
+              <span class="span body-1">Following too close increases crash likelihood by 3x</span>
+            </div>
+
+            <a href="#line-chart" class="btn btn-primary" style="margin-top: 24px;">
+              <span class="text text-1">Explore Seasonal Data</span>
+              <span class="text text-2" aria-hidden="true">Explore Seasonal Data</span>
+            </a>
+
+          </div>
+
+        </div>
+      </section>
+
+
+
+
+
+      <!-- 
+        - #KEY INSIGHTS
+      -->
+
+      <section class="section about text-center" aria-labelledby="insights-label" id="insights">
+        <div class="container">
+
+          <div class="about-content>
+
+            <p class="label-2 section-subtitle" id="insights-label">Data-Driven Findings</p>
+
+            <h2 class="headline-1 section-title">Porsche Nurburgring Crash</h2>
+
+            <p class="section-text">
+              Porsche 911 GT3 RS collides with BMW M2 at high speed on Nürburgring track. Despite advanced safety features,
+              the rear-end impact results in severe vehicle damage and potential injuries, highlighting the critical importance
+              of vehicle safety systems and driver awareness on high-speed tracks. Moreover, this incident underscores the need for 
+              rigorous adherence to speed limits and safe driving practices on the public roads, where conditions are less controlled 
+              than on a racetrack, which can significantly impact crash outcomes However, the two people, one in porsche and bmw were 
+              safe from the crash with minor bruises to their arms.
+            </p>
+
+            <div class="contact-label">Dataset Information</div>
+
+            <a href="https://data.sa.gov.au" class="body-1 contact-number hover-underline" target="_blank" rel="noopener">data.sa.gov.au</a>
+
+            <p class="section-text" style="margin-top: 30px;">
+              <strong>Analysis Period:</strong> January 2020 - December 2024<br>
+              <strong>Total Crashes:</strong> 63,241 recorded incidents<br>
+              <strong>Total Casualties:</strong> 23,894 individuals affected<br>
+              <strong>Key Crash Types:</strong> Rear End, Hit Fixed Object, Right Angle<br>
+              <strong>Injury Categories:</strong> Fatal, Serious Injury, Minor Injury
+            </p>
+
+          </div>
+
+          <figure class="about-banner">
+
+            <img src="./assets/images/nurbugring-crash.avif" width="570" height="570" loading="lazy" alt="data analysis visualization"
+              class="w-100" data-parallax-item data-parallax-speed="1">
+
+            <div class="abs-img abs-img-1 has-before" data-parallax-item data-parallax-speed="1.75" style="position: static; width: 100%; max-width: 570px; margin-top: 20px; transform: none;">
+              <img src="./assets/images/5dlk51rk_porsche-gt3-rs-crashes-with-bmw-m2-at-nurburgring_625x300_07_July_25.jpg" width="570" height="285" loading="lazy" alt="crash data"
+                class="w-100">
+            </div>
+
+            <div class="abs-img abs-img-2 has-before">
+              <img src="./assets/images/badge-2.png" width="133" height="134" loading="lazy" alt="data badge">
+            </div>
+
+          </figure>
+
+          <img src="./assets/images/shape-3.png" width="197" height="194" loading="lazy" alt="" class="shape">
+
+        </div>
+      </section>
+
+
+
+
+
+      <!-- 
+        - #SPECIAL DISH (REMOVED - Restaurant content)
+        - #MENU (REMOVED - Restaurant content)
+      -->
+
+
+
+
+
+      <!-- 
+        - #TESTIMONIALS
+      -->
+
+      <section class="section testi text-center has-bg-image"
+        style="background-image: url('./assets/images/porsche-911-gt3-rs-bmw-m2-nurburgring-crash-4.jpg')" aria-label="testimonials">
+        <div class="container">
+
+          <div class="quote">"</div>
+
+          <p class="headline-2 testi-text">
+            Understanding crash patterns through data visualization enables evidence-based interventions 
+            that save lives on our roads.
+          </p>
+
+          <div class="wrapper">
+            <div class="separator"></div>
+            <div class="separator"></div>
+            <div class="separator"></div>
+          </div>
+
+          <div class="profile">
+            <img src="./assets/images/WhatsApp Image 2024-09-12 at 11.31.30_c8a3e57a.jpg" width="100" height="100" loading="lazy" alt="Data Analyst"
+              class="img">
+
+            <p class="label-2 profile-name">Road Safety Researcher</p>
+          </div>
+
+        </div>
+      </section>
+
+
+
+
+
+      <!-- 
+        - #RESERVATION (REMOVED - Restaurant content)
+        - Replaced with data methodology section
+      -->
+
+      <section class="reservation">
+        <div class="container">
+
+          <div class="form reservation-form bg-black-10">
+
+            <div class="form-left">
+
+              <h2 class="headline-1 text-center" style="margin-top: 40px; margin-bottom: 20px;">Data Methodology</h2>
+
+              <p class="form-text text-center">
+                Our analysis uses rigorous data processing workflows to ensure accurate insights
+              </p>
+
+              <div style="padding: 30px 30px 30px 30px; text-align: left; margin-top: 20px;">
+                <h3 class="title-2" style="color: var(--gold-crayola); margin-bottom: 20px;">Data Processing Pipeline</h3>
+                
+                <div style="margin-bottom: 25px;">
+                  <h4 class="body-1" style="color: var(--white); margin-bottom: 10px;">
+                    <ion-icon name="download-outline" style="vertical-align: middle;"></ion-icon>
+                    1. Data Collection
+                  </h4>
+                  <p class="body-2" style="color: var(--quick-silver);">
+                    Raw crash and casualty data sourced from South Australia Government Open Data Portal. 
+                    Contains 63,241 crash records and 23,894 casualty records spanning 2020-2024.
+                  </p>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                  <h4 class="body-1" style="color: var(--white); margin-bottom: 10px;">
+                    <ion-icon name="filter-outline" style="vertical-align: middle;"></ion-icon>
+                    2. Data Cleaning (KNIME)
+                  </h4>
+                  <p class="body-2" style="color: var(--quick-silver);">
+                    KNIME workflows filter null values, standardize categorical variables, and remove 
+                    incomplete records. This reduced crash data to 15,471 high-quality records.
+                  </p>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                  <h4 class="body-1" style="color: var(--white); margin-bottom: 10px;">
+                    <ion-icon name="analytics-outline" style="vertical-align: middle;"></ion-icon>
+                    3. Analysis & Visualization
+                  </h4>
+                  <p class="body-2" style="color: var(--quick-silver);">
+                    D3.js processes cleaned data for aggregation and temporal analysis. Observable Plot 
+                    renders interactive visualizations with real-time filtering capabilities.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 class="body-1" style="color: var(--white); margin-bottom: 10px;">
+                    <ion-icon name="checkmark-circle-outline" style="vertical-align: middle;"></ion-icon>
+                    4. Validation
+                  </h4>
+                  <p class="body-2" style="color: var(--quick-silver);">
+                    Cross-referenced with official SA road safety reports. Statistical measures verified 
+                    for consistency and reliability.
+                  </p>
+                </div>
+
+              </div>
+
+            </div>
+
+            <div class="form-right text-center" style="background-image: url('./assets/images/form-pattern.png')">
+
+              <h2 class="headline-1 text-center">Project Information</h2>
+
+              <p class="contact-label">Academic Course</p>
+
+              <p class="body-1" style="color: var(--gold-crayola);">COS30045 Data Visualisation</p>
+
+              <div class="separator"></div>
+
+              <p class="contact-label">Institution</p>
+
+              <address class="body-4">
+                Swinburne University of Technology<br>
+                Melbourne, Australia
+              </address>
+
+              <p class="contact-label">Data Period</p>
+
+              <p class="body-4">
+                January 2020 - December 2024<br>
+                5 years of comprehensive data
+              </p>
+
+              <p class="contact-label">Technologies Used</p>
+
+              <p class="body-4">
+                D3.js v7 • Observable Plot v0.6<br>
+                KNIME • HTML5 • CSS3 • JavaScript
+              </p>
+
+              <div class="separator"></div>
+
+              <p class="contact-label">Contact</p>
+
+              <a href="mailto:student@swin.edu.au" class="body-4 hover-underline" style="color: var(--gold-crayola);">
+                student@swin.edu.au
+              </a>
+
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+
+
+
+
+      <!-- 
+        - #FEATURES
+      -->
+
+      <section class="section features text-center" aria-label="features">
+        <div class="container">
+
+          <p class="section-subtitle label-2">Data Visualization Features</p>
+
+          <h2 class="headline-1 section-title">Analysis Capabilities</h2>
+
+          <ul class="grid-list">
+
+            <li class="feature-item">
+              <div class="feature-card">
+
+                <div class="card-icon">
+                  <img src="./assets/images/features-icon-1.png" width="100" height="80" loading="lazy" alt="temporal analysis icon">
+                </div>
+
+                <h3 class="title-2 card-title">Temporal Analysis</h3>
+
+                <p class="label-1 card-text">Multi-series line charts reveal seasonal crash patterns across different collision types from 2020-2024.</p>
+
+              </div>
+            </li>
+
+            <li class="feature-item">
+              <div class="feature-card">
+
+                <div class="card-icon">
+                  <img src="./assets/images/Screenshot 2025-11-17 081528.png" width="100" height="80" loading="lazy" alt="comparative analysis icon">
+                </div>
+
+                <h3 class="title-2 card-title">Comparative Analysis</h3>
+
+                <p class="label-1 card-text">Grouped bar charts compare safety equipment effectiveness and injury severity outcomes.</p>
+
+              </div>
+            </li>
+
+            <li class="feature-item">
+              <div class="feature-card">
+
+                <div class="card-icon">
+                  <img src="./assets/images/features-icon-3.png" width="100" height="80" loading="lazy" alt="interactive filtering icon">
+                </div>
+
+                <h3 class="title-2 card-title">Interactive Filtering</h3>
+
+                <p class="label-1 card-text">Real-time data filtering by year range, crash type, and other parameters with instant chart updates.</p>
+
+              </div>
+            </li>
+
+            <li class="feature-item">
+              <div class="feature-card">
+
+                <div class="card-icon">
+                  <img src="./assets/images/Screenshot 2025-11-17 081441.png" width="100" height="80" loading="lazy" alt="statistical insights icon">
+                </div>
+
+                <h3 class="title-2 card-title">Statistical Insights</h3>
+
+                <p class="label-1 card-text">Automated calculations of risk factors, fatality rates, and severity comparisons with clear summaries.</p>
+
+              </div>
+            </li>
+
+          </ul>
+
+          <img src="./assets/images/shape-7.png" width="208" height="178" loading="lazy" alt="shape"
+            class="shape shape-1">
+
+          <img src="./assets/images/shape-8.png" width="120" height="115" loading="lazy" alt="shape"
+            class="shape shape-2">
+
+        </div>
+      </section>
+
+
+
+
+
+      <!-- 
+        - #DATA INSIGHTS CARDS
+      -->
+
+      <section class="section event bg-black-10" aria-label="data insights">
+        <div class="container">
+
+          <p class="section-subtitle label-2 text-center">Data Highlights</p>
+
+          <h2 class="section-title headline-1 text-center">Key Findings</h2>
+
+          <ul class="grid-list">
+
+            <li>
+              <div class="event-card has-before hover:shine">
+
+                <div class="card-banner img-holder" style="--width: 350; --height: 450;">
+                  <img src="./assets/images/360_F_177702320_r7v3wfRlbJNL56JBZvB2UkKpGO55xO0f.jpg" width="350" height="450" loading="lazy"
+                    alt="Seasonal crash patterns analysis" class="img-cover">
+
+                  <time class="publish-date label-2" datetime="2020-2024">2020-2024</time>
+                </div>
+
+                <div class="card-content">
+                  <p class="card-subtitle label-2 text-center">Temporal Analysis</p>
+
+                  <h3 class="card-title title-2 text-center">
+                    Rear-end crashes peak during winter months, showing 23% increase in June-July.
+                  </h3>
+                </div>
+
+              </div>
+            </li>
+
+            <li>
+              <div class="event-card has-before hover:shine">
+
+                <div class="card-banner img-holder" style="--width: 350; --height: 450;">
+                  <img src="./assets/images/060625nstcrash01_1749175662.jpg" width="350" height="450" loading="lazy"
+                    alt="Seatbelt effectiveness study" class="img-cover">
+
+                  <time class="publish-date label-2" datetime="2020-2024">2020-2024</time>
+                </div>
+
+                <div class="card-content">
+                  <p class="card-subtitle label-2 text-center">Safety Equipment</p>
+
+                  <h3 class="card-title title-2 text-center">
+                    Wearing seatbelts reduces fatal injury risk by 4.2x compared to not wearing.
+                  </h3>
+                </div>
+
+              </div>
+            </li>
+
+            <li>
+              <div class="event-card has-before hover:shine">
+
+                <div class="card-banner img-holder" style="--width: 350; --height: 450;">
+                  <img src="./assets/images/mclaren_accident.jpg" width="350" height="450" loading="lazy"
+                    alt="Crash type distribution analysis" class="img-cover">
+
+                  <time class="publish-date label-2" datetime="2020-2024">2020-2024</time>
+                </div>
+
+                <div class="card-content">
+                  <p class="card-subtitle label-2 text-center">Crash Types</p>
+
+                  <h3 class="card-title title-2 text-center">
+                    Hit fixed object incidents show highest casualty rate per crash at 1.8 average.
+                  </h3>
+                </div>
+
+              </div>
+            </li>
+
+          </ul>
+
+          <a href="#line-chart" class="btn btn-primary">
+            <span class="text text-1">Explore Visualizations</span>
+
+            <span class="text text-2" aria-hidden="true">Explore Visualizations</span>
+          </a>
+
+        </div>
+      </section>
+
+    </article>
+  </main>
+
+
+
+
+
+  <!-- 
+    - #FOOTER
+  -->
+
+  <footer class="footer section has-bg-image text-center"
+    style="background-image: url('./assets/images/Gemini_Generated_Image_ozw7guozw7guozw7\(nobackground\).PNG')">
+    <div class="container">
+
+      <div class="footer-top grid-list">
+
+        <div class="footer-brand has-before has-after">
+
+          <a href="#" class="logo">
+            <img src="./assets/images/Gemini_Generated_Image_ozw7guozw7guozw7(nobackground).PNG" width="160" height="50" loading="lazy" alt="road safety data visualization">
+          </a>
+
+          <address class="body-4">
+            Swinburne University of Technology, Melbourne, Australia
+          </address>
+
+          <a href="mailto:student@swin.edu.au" class="body-4 contact-link">student@swin.edu.au</a>
+
+          <a href="https://data.sa.gov.au" class="body-4 contact-link" target="_blank" rel="noopener">Data Source: data.sa.gov.au</a>
+
+          <p class="body-4">
+            Dataset Period: 2020 - 2024
+          </p>
+
+          <div class="wrapper">
+            <div class="separator"></div>
+            <div class="separator"></div>
+            <div class="separator"></div>
+          </div>
+
+          <p class="title-1">COS30045 Data Visualisation</p>
+
+          <p class="label-1">
+            Academic Project <span class="span">Fall 2025</span>
+          </p>
+
+          <form action="" class="input-wrapper" style="display: none;">
+            <div class="icon-wrapper">
+              <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+
+              <input type="email" name="email_address" placeholder="Your email" autocomplete="off" class="input-field">
+            </div>
+
+            <button type="submit" class="btn btn-secondary">
+              <span class="text text-1">Subscribe</span>
+
+              <span class="text text-2" aria-hidden="true">Subscribe</span>
+            </button>
+          </form>
+
+        </div>
+
+        <ul class="footer-list">
+
+          <li>
+            <a href="#home" class="label-2 footer-link hover-underline">Home</a>
+          </li>
+
+          <li>
+            <a href="#line-chart" class="label-2 footer-link hover-underline">Seasonal Trends</a>
+          </li>
+
+          <li>
+            <a href="#bar-chart" class="label-2 footer-link hover-underline">Safety Equipment</a>
+          </li>
+
+          <li>
+            <a href="#insights" class="label-2 footer-link hover-underline">Key Insights</a>
+          </li>
+
+          <li>
+            <a href="https://github.com/codewithsadee/grilli" class="label-2 footer-link hover-underline" target="_blank" rel="noopener">GitHub</a>
+          </li>
+
+        </ul>
+
+        <ul class="footer-list">
+
+          <li>
+            <a href="https://data.sa.gov.au" class="label-2 footer-link hover-underline" target="_blank" rel="noopener">Data.SA.gov.au</a>
+          </li>
+
+          <li>
+            <a href="https://d3js.org" class="label-2 footer-link hover-underline" target="_blank" rel="noopener">D3.js</a>
+          </li>
+
+          <li>
+            <a href="https://observablehq.com/plot" class="label-2 footer-link hover-underline" target="_blank" rel="noopener">Observable Plot</a>
+          </li>
+
+          <li>
+            <a href="https://www.swinburne.edu.au" class="label-2 footer-link hover-underline" target="_blank" rel="noopener">Swinburne University</a>
+          </li>
+
+          <li>
+            <a href="https://github.com/codewithsadee/grilli" class="label-2 footer-link hover-underline" target="_blank" rel="noopener">Original Template</a>
+          </li>
+
+        </ul>
+
+      </div>
+
+      <div class="footer-bottom">
+
+        <p class="copyright">
+          &copy; 2025 Australia Road Safety Enforcement. All Rights Reserved | Crafted by <a href="https://cos30045-inti-subang.github.io/data-visualisation-project-dv_group25/">Jacob</a>
+        </p>
+
+      </div>
+
+    </div>
+  </footer>
+
+
+
+
+
+  <!-- 
+    - #BACK TO TOP
+  -->
+
+  <a href="#top" class="back-top-btn active" aria-label="back to top" data-back-top-btn>
+    <ion-icon name="chevron-up" aria-hidden="true"></ion-icon>
+  </a>
+
+
+
+
+
+  <!-- 
+    - custom js link
+  -->
+  <script src="./assets/js/script.js"></script>
+
+  <!-- 
+    - visualization js link
+  -->
+  <script src="./assets/js/leafletmap.js"></script>
+  <script src="./assets/js/visualizations.js"></script>
+
+  <!-- 
+    - ionicon link
+  -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+</body>
+
+</html>

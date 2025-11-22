@@ -1,0 +1,22 @@
+﻿# Large unfiltered datasets - keep only filtered versions
+data/_1_crash_locations(2015-2025).csv
+data/_1_crash_locations(2018-2025).csv
+data/2018-2022_DATA_SA_Crash.csv
+data/2019-2023_DATA_SA_Crash.csv
+data/2020-2024_DATA_SA_Crash.csv
+data/2018-2022_DATA_SA_Units.csv
+data/2019-2023_DATA_SA_Units.csv
+data/2020-2024_DATA_SA_Units.csv
+data/Australian Road Deaths Database September 2025.csv
+data/Australian Road Deaths Database September 2025 (2).xlsx
+data/*.xlsx
+data/ac_*.csv
+
+# Large images - keep only optimized versions
+assets/images/Screenshot*.png
+
+# Assignment files - not needed on server
+assignment_information_exerciseinfo/
+
+# GitHub folder
+.github/
