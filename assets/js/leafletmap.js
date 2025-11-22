@@ -18,7 +18,7 @@
 
 	class RoadSafetyMap {
 		constructor() {
-			this.dataUrl = "./data/_1_crash_locations(2018-2025).csv";
+			this.dataUrl = "./data/crash_locations.csv";
 			this.container = document.getElementById("map-container");
 			this.mapElementId = "sa-leaflet-map";
 			this.currentYear = "ALL";

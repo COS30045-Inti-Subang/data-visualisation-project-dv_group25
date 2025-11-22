@@ -70,7 +70,7 @@ function normalizeInjuryExtent(value = "") {
 async function createLineChart() {
   try {
     // Load the crash data
-    const data = await d3.csv("./data/2020-2024_DATA_SA_Crash(filtered).csv");
+    const data = await d3.csv("./data/sa_crash_2020_2024.csv");
     globalRawData = data;
     
     console.log("Data loaded:", data.length, "rows");
@@ -352,7 +352,7 @@ function updateLineChart() {
 async function createBarChart() {
   try {
     // Load the casualty data
-    const data = await d3.csv("./data/2020-2024_DATA_SA_Casualty(filtered).csv");
+    const data = await d3.csv("./data/sa_casualty_2020_2024.csv");
     
     console.log("Casualty data loaded:", data.length, "rows");
     console.log("Sample casualty row:", data[0]);
@@ -614,7 +614,7 @@ function renderBarChart(data) {
 async function createMap() {
   try {
     // Load the crash data
-    const data = await d3.csv("./data/2020-2024_DATA_SA_Crash(filtered).csv");
+    const data = await d3.csv("./data/sa_crash_2020_2024.csv");
     
     console.log("Map data loaded:", data.length, "rows");
     
@@ -921,7 +921,7 @@ async function createGeographicMap() {
     // Load GeoJSON boundary and crash data in parallel
     const [geoData, crashData] = await Promise.all([
       d3.json("./data/south-australia.geojson"),
-      d3.csv("./data/2020-2024_DATA_SA_Crash(filtered).csv")
+      d3.csv("./data/sa_crash_2020_2024.csv")
     ]);
     
     console.log("GeoJSON loaded:", geoData);
